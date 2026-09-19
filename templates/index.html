@@ -22,7 +22,7 @@
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             padding: 35px;
             border: 1px solid #eef2f5;
         }
@@ -73,10 +73,11 @@
             padding-bottom: 15px;
         }
         .post-item {
-            padding: 15px 0;
+            padding: 16px 0;
             border-bottom: 1px solid #f3f4f6;
             font-size: 16px;
-            line-height: 1.7;
+            line-height: 1.8;
+            display: block;
         }
         .post-item:last-child {
             border-bottom: none;
@@ -85,14 +86,15 @@
             color: #2563eb;
             font-weight: 700;
             text-decoration: underline;
-            font-size: 17px;
+            font-size: 18px;
         }
         .page-link:hover {
             color: #1d4ed8;
         }
         .post-text {
-            color: #374151;
-            font-weight: 500;
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 16px;
         }
         .btn-custom {
             background-color: #2563eb;
@@ -128,16 +130,16 @@
                 <small class="text-muted">نظام استخراج وتحليل محتوى المنشورات الإخبارية</small>
             </div>
         </div>
-        <span class="badge-status">● جاهز للاستخراج</span>
+        <span class="badge-status">● مكتمل الاستخراج</span>
     </div>
 
     <!-- Input Section -->
-    <div id="inputSection">
-        <div class="mb-3">
-            <label class="form-label fw-bold">أدخل رابط المنشور الإخباري:</label>
-            <input type="url" id="urlInput" class="form-control form-control-lg" placeholder="https://www.facebook.com/..." required>
-        </div>
-        <button class="btn btn-custom w-100 py-2 mb-4" onclick="processExtract()">استخراج وتفريغ المحتوى</button>
+    <div id="inputSection" class="mb-4">
+        <label class="form-label fw-bold">أدخل روابط المنشورات الإخبارية (رابط في كل سطر):</label>
+        <textarea id="urlsInput" class="form-control mb-3" rows="4" placeholder="ضع الروابط هنا...
+https://www.facebook.com/...
+https://www.facebook.com/..."></textarea>
+        <button class="btn btn-custom w-100 py-2" onclick="processExtract()">استخراج وتفريغ الروابط</button>
     </div>
 
     <!-- Results Section -->
@@ -148,7 +150,7 @@
         </div>
 
         <div id="resultsList">
-            <!-- ستظهر النتائج هنا بتنسيق الصورة -->
+            <!-- ستظهر النتائج هنا بنفس نمط الصورة بالضبط -->
         </div>
 
         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
@@ -162,11 +164,11 @@
     let extractedData = [];
 
     async function processExtract() {
-        const urlInput = document.getElementById('urlInput');
-        const url = urlInput.value.trim();
+        const urlsInput = document.getElementById('urlsInput');
+        const urls = urlsInput.value.trim();
 
-        if (!url) {
-            alert('يرجى إدخال الرابط أولاً');
+        if (!urls) {
+            alert('يرجى إدخال رابط واحد على الأقل');
             return;
         }
 
@@ -174,15 +176,14 @@
             const res = await fetch('/extract', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url })
+                body: JSON.stringify({ urls: urls })
             });
 
             const data = await res.json();
 
             if (data.status === 'success') {
-                extractedData.push(data);
+                extractedData = data.results;
                 renderResults();
-                urlInput.value = '';
             } else {
                 alert(data.message || 'حدث خطأ أثناء التفريغ.');
             }
@@ -198,7 +199,7 @@
         extractedData.forEach(item => {
             const row = document.createElement('div');
             row.className = 'post-item';
-            row.innerHTML = `<a href="${item.post_url}" target="_blank" class="page-link">${item.page_name}</a> : <span class="post-text">${item.post_text}</span>`;
+            row.innerHTML = `<a href="${item.post_url}" target="_blank" class="page-link">${item.page_name}</a> <span class="fw-bold text-primary">:</span> <span class="post-text">${item.post_text}</span>`;
             listDiv.appendChild(row);
         });
 
@@ -214,6 +215,7 @@
 
     function clearAll() {
         extractedData = [];
+        document.getElementById('urlsInput').value = '';
         renderResults();
     }
 </script>
