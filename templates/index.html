@@ -1,434 +1,128 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>تفريغ روابط فيسبوك</title>
-
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css"
-        rel="stylesheet"
-    >
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap"
-        rel="stylesheet"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفريغ الروابط بدقة</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: #f4f6f9;
-            padding: 30px 15px;
-        }
-
-        .main-card {
-            max-width: 850px;
-            margin: auto;
-            background: white;
-            border-radius: 18px;
-            padding: 30px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.07);
-        }
-
-        .title {
-            font-weight: 800;
-            color: #212529;
-        }
-
-        .subtitle {
-            color: #6c757d;
-        }
-
-        textarea {
-            resize: vertical;
-        }
-
-        .extract-btn {
-            height: 52px;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .result-card {
-            background: #fff;
-            border: 1px solid #e4e7eb;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 12px;
-        }
-
-        .page-name {
-            font-size: 18px;
-            font-weight: 800;
-            color: #0d6efd;
-        }
-
-        .post-text {
-            margin-top: 10px;
-            line-height: 1.9;
-            color: #333;
-            white-space: pre-wrap;
-        }
-
-        .url {
-            font-size: 12px;
-            color: #777;
-            word-break: break-all;
-            margin-top: 10px;
-        }
-
-        .status {
-            font-weight: 700;
-        }
-
-        .success {
-            color: #198754;
-        }
-
-        .error {
-            color: #dc3545;
-        }
-
-        .copy-btn {
-            margin-top: 12px;
-        }
-
-        #loading {
-            display: none;
-        }
-
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; padding: 25px; }
+        .card { max-width: 800px; margin: auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); background: #fff; }
+        .row-box { background: #fdfdfe; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 12px; }
+        .item-result { padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 16px; line-height: 1.8; }
+        .page-link { color: #0d6efd; font-weight: bold; text-decoration: underline; }
     </style>
-
 </head>
-
 <body>
 
-<div class="main-card">
-
-    <div class="text-center mb-4">
-
-        <h2 class="title">
-            📄 تفريغ روابط فيسبوك
-        </h2>
-
-        <p class="subtitle mb-0">
-            ضع روابط المنشورات، وسيحاول النظام استخراج اسم الصفحة ونص المنشور تلقائيًا.
-        </p>
-
-    </div>
-
-
+<div class="card">
+    <h4 class="fw-bold mb-2 text-center">أداة تفريغ الروابط الدقيقة</h4>
+    <p class="text-muted text-center small mb-4">ضع الروابط لتظهر لك خانة لصق النص لكل رابط للحصول على دقة مطلقة.</p>
+    
     <div class="mb-3">
-
-        <label class="form-label fw-bold">
-            روابط فيسبوك
-        </label>
-
-        <textarea
-            id="linksInput"
-            class="form-control"
-            rows="6"
-            placeholder="ضع كل رابط في سطر منفصل..."
-        ></textarea>
-
+        <label class="form-label fw-bold">الروابط (ضع كل رابط في سطر):</label>
+        <textarea id="linksInput" class="form-control" rows="3" placeholder="https://..." oninput="buildFields()"></textarea>
     </div>
 
+    <!-- خانات إدخال النص الدقيق لكل رابط -->
+    <div id="dynamicInputs" class="mb-3"></div>
+    
+    <button class="btn btn-primary w-100 mb-4 fw-bold py-2" onclick="generateFinalOutput()">توليد الشكل النهائي للعميل</button>
 
-    <button
-        id="extractBtn"
-        class="btn btn-primary w-100 extract-btn"
-        onclick="extractLinks()"
-    >
-        🔎 تفريغ الروابط
-    </button>
-
-
-    <div
-        id="loading"
-        class="text-center mt-4"
-    >
-        <div
-            class="spinner-border text-primary"
-            role="status"
-        ></div>
-
-        <div class="mt-2 fw-bold">
-            جارٍ قراءة الروابط...
+    <div class="border rounded p-3 bg-light">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-success">النتائج الجاهزة للنسخ:</span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="copyResults()">📋 نسخ النتائج</button>
         </div>
+        <div id="outputArea" class="text-muted small">قم بإدخال الروابط والنصوص لتظهر النتيجة هنا...</div>
     </div>
-
-
-    <div
-        id="results"
-        class="mt-4"
-    ></div>
-
-
-    <button
-        id="copyAllBtn"
-        class="btn btn-outline-success w-100 copy-btn"
-        style="display:none"
-        onclick="copyAll()"
-    >
-        📋 نسخ جميع النتائج
-    </button>
-
 </div>
 
-
 <script>
+    let activeLinks = [];
 
-let extractedResults = [];
-
-
-async function extractLinks() {
-
-    const input =
-        document.getElementById("linksInput");
-
-    const links =
-        input.value.trim();
-
-    if (!links) {
-
-        alert("الرجاء إدخال رابط واحد على الأقل.");
-
-        return;
+    function detectPageName(url) {
+        let lower = url.toLowerCase();
+        if (lower.includes('alfaisalyscjo')) return "النادي الفيصلي الأردني";
+        if (lower.includes('sarahanews')) return "صراحة نيوز";
+        if (lower.includes('radiohala')) return "راديو هالة";
+        if (lower.includes('ammonnews')) return "عمون الإخبارية";
+        if (lower.includes('royanews')) return "رؤيا الإخباري";
+        if (lower.includes('alghad')) return "صحيفة الغد";
+        if (lower.includes('facebook') || lower.includes('fb.watch') || lower.includes('share')) return "منشور فيسبوك";
+        
+        try {
+            let d = new URL(url).hostname.replace('www.', '').split('.')[0];
+            if (d) return d.charAt(0).toUpperCase() + d.slice(1);
+        } catch(e) {}
+        return "صفحة إخبارية";
     }
 
+    function buildFields() {
+        let text = document.getElementById('linksInput').value.trim();
+        let container = document.getElementById('dynamicInputs');
+        container.innerHTML = '';
+        activeLinks = [];
 
-    const loading =
-        document.getElementById("loading");
+        if (!text) return;
 
-    const results =
-        document.getElementById("results");
+        let lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        activeLinks = lines;
 
-    const button =
-        document.getElementById("extractBtn");
-
-    const copyButton =
-        document.getElementById("copyAllBtn");
-
-
-    loading.style.display = "block";
-
-    results.innerHTML = "";
-
-    copyButton.style.display = "none";
-
-    button.disabled = true;
-
-    extractedResults = [];
-
-
-    try {
-
-        const response =
-            await fetch("/extract", {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    urls: links
-                })
-
+        if (lines.length > 0) {
+            let html = '<label class="form-label fw-bold small text-primary">الصق نص البوست الدقيق لكل رابط أدناه:</label>';
+            lines.forEach((url, i) => {
+                let pageName = detectPageName(url);
+                html += `
+                    <div class="row-box">
+                        <div class="fw-bold text-dark small mb-1">🔗 الرابط ${i+1} (${pageName}):</div>
+                        <textarea id="text_${i}" class="form-control form-control-sm" rows="2" placeholder="الصق نص المنشور الحقيقي هنا..."></textarea>
+                    </div>
+                `;
             });
-
-
-        const data =
-            await response.json();
-
-
-        if (data.status !== "success") {
-
-            throw new Error(
-                data.message ||
-                "حدث خطأ."
-            );
-
+            container.innerHTML = html;
         }
-
-
-        extractedResults =
-            data.results || [];
-
-
-        displayResults(
-            extractedResults
-        );
-
-
-        if (extractedResults.length) {
-            copyButton.style.display =
-                "block";
-        }
-
-
-    } catch (error) {
-
-        results.innerHTML = `
-            <div class="alert alert-danger">
-                ❌ ${escapeHtml(error.message)}
-            </div>
-        `;
-
-    } finally {
-
-        loading.style.display = "none";
-
-        button.disabled = false;
-
     }
 
-}
+    let finalCopyText = "";
 
-
-function displayResults(results) {
-
-    const container =
-        document.getElementById("results");
-
-    container.innerHTML = "";
-
-
-    results.forEach((item, index) => {
-
-        const card =
-            document.createElement("div");
-
-        card.className =
-            "result-card";
-
-
-        if (item.success) {
-
-            card.innerHTML = `
-
-                <div class="status success">
-                    ✅ تم استخراج الرابط ${index + 1}
-                </div>
-
-                <div class="page-name mt-2">
-                    ${escapeHtml(
-                        item.page_name ||
-                        "اسم الصفحة غير متوفر"
-                    )}
-                </div>
-
-                <div class="post-text">
-                    ${escapeHtml(
-                        item.post_text ||
-                        "نص المنشور غير متوفر"
-                    )}
-                </div>
-
-                <div class="url">
-                    🔗 ${escapeHtml(item.post_url)}
-                </div>
-
-            `;
-
-        } else {
-
-            card.innerHTML = `
-
-                <div class="status error">
-                    ❌ تعذر استخراج الرابط ${index + 1}
-                </div>
-
-                <div class="mt-2">
-                    ${escapeHtml(
-                        item.message ||
-                        "المحتوى غير متوفر."
-                    )}
-                </div>
-
-                <div class="url">
-                    🔗 ${escapeHtml(item.post_url)}
-                </div>
-
-            `;
-
+    function generateFinalOutput() {
+        if (activeLinks.length === 0) {
+            alert('الرجاء إدخال روابط أولاً');
+            return;
         }
 
+        let output = document.getElementById('outputArea');
+        output.innerHTML = '';
+        let textLines = [];
 
-        container.appendChild(card);
+        activeLinks.forEach((url, i) => {
+            let pageName = detectPageName(url);
+            let userText = document.getElementById(`text_${i}`).value.trim();
+            if (!userText) userText = "نص المنشور غير متوفر";
 
-    });
+            textLines.push(`${pageName} : ${userText}`);
 
-}
-
-
-function copyAll() {
-
-    if (!extractedResults.length) {
-
-        alert("لا توجد نتائج لنسخها.");
-
-        return;
-    }
-
-
-    const text =
-        extractedResults
-            .map(item => {
-
-                return (
-                    (item.page_name || "اسم الصفحة غير متوفر")
-                    + " : "
-                    + (item.post_text || "نص المنشور غير متوفر")
-                );
-
-            })
-            .join("\n\n");
-
-
-    navigator.clipboard
-        .writeText(text)
-        .then(() => {
-
-            alert(
-                "✅ تم نسخ جميع النتائج."
-            );
-
-        })
-        .catch(() => {
-
-            alert(
-                "تعذر النسخ تلقائيًا."
-            );
-
+            let div = document.createElement('div');
+            div.className = 'item-result';
+            div.innerHTML = `<a href="${url}" target="_blank" class="page-link">${pageName}</a> : <span>${userText}</span>`;
+            output.appendChild(div);
         });
 
-}
+        finalCopyText = textLines.join('\n');
+        alert('تم توليد النتائج بدقة تامة وجاهزة للنسخ!');
+    }
 
-
-function escapeHtml(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent =
-        text || "";
-
-    return div.innerHTML;
-}
-
+    function copyResults() {
+        if (!finalCopyText) {
+            alert('الرجاء توليد النتائج أولاً');
+            return;
+        }
+        navigator.clipboard.writeText(finalCopyText);
+        alert('تم نسخ النتائج بنجاح إلى الحافظة!');
+    }
 </script>
 
 </body>
-
 </html>
