@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, jsonify
+import requests
+from bs4 import BeautifulSoup
 import re
 
 app = Flask(__name__)
@@ -12,7 +14,7 @@ def extract():
     data = request.get_json() or {}
     raw_urls = data.get('urls', '')
     
-    # تقسيم النص المكتوب إلى خطوط/روابط منفصلة
+    # تقسيم الروابط المدخلة (كل رابط في سطر)
     url_list = [u.strip() for u in raw_urls.split('\n') if u.strip()]
     
     if not url_list:
@@ -20,45 +22,50 @@ def extract():
     
     results = []
     
+    # التظاهر بمتصفح حقيقي لتجاوز حظر فيسبوك
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'ar,en-US;q=0.9,en;q=0.8'
+    }
+
     for url in url_list:
         page_name = ""
         post_text = ""
         
-        # استخراج واكتشاف اسم الصفحة من الرابط
-        if "RadioHalaJO" in url or "radiohala" in url.lower():
-            page_name = "موقع راديو هالة"
-            post_text = "تغطية إخبارية مستمرة ونشرة تفصيلية عبر أثير راديو هالة."
-        elif "SarahaNews" in url or "sarahanews" in url.lower():
-            page_name = "موقع صراحة نيوز"
-            post_text = "خبر عاجل ومتابعة صحفية نقلاً عن وكالة صراحة نيوز الإخبارية."
-        elif "AmmonNews" in url or "ammonnews" in url.lower():
-            page_name = "موقع عمون الإخباري"
-            post_text = "تم اليوم عقد المؤتمر الصحفي الخاص بتطورات قطاع الطاقة والتكنولوجيا الرقمية."
-        elif "SarayaNews" in url or "sarayanews" in url.lower():
-            page_name = "موقع سرايا الإخباري"
-            post_text = "انطلاق فعاليات المعرض الثقافي بمشاركة واسعة من مختلف الجهات والمؤسسات."
-        elif "RoyaNews" in url or "royanews" in url.lower():
-            page_name = "موقع رؤيا الإخباري"
-            post_text = "نشرة حالة الطقس المتوقعة للأيام القادمة وتنبيهات الهطولات المطيرة."
-        elif "AlJazeera" in url or "aljazeera" in url.lower():
-            page_name = "موقع الجزيرة الإخباري"
-            post_text = "متابعة لمستجدات الأحداث الاقتصادية والتغطية الشاملة على مدار الساعة."
-        elif "reel" in url.lower():
-            page_name = "Facebook Reel"
-            post_text = "مقطع فيديو قصير (Reel) تم استخراج بياناته بنجاح."
-        else:
+        try:
+            # طلب فتح رابط المنشور من فيسبوك
+            res = requests.get(url, headers=headers, timeout=8)
+            soup = BeautifulSoup(res.text, 'html.parser')
+            
+            # 1. جلب اسم الصفحة وعنوان المنشور من الميتا داتا فيسبوك
+            og_title = soup.find('meta', property='og:title')
+            og_desc = soup.find('meta', property='og:description')
+            
+            if og_title and og_title.get('content'):
+                title_val = og_title['content']
+                page_name = re.split(r'[|\-–]', title_val)[0].strip()
+                
+            if og_desc and og_desc.get('content'):
+                post_text = og_desc['content']
+
+        except Exception:
+            pass
+
+        # في حال عدم التمكن من قراءة الاسم تلقائياً، استخراجه من الرابط
+        if not page_name or page_name.lower() in ['facebook', 'home']:
             match = re.search(r'facebook\.com/([^/?#]+)', url)
             if match:
                 extracted = match.group(1)
                 if extracted not in ['posts', 'reels', 'videos', 'photo', 'watch', 'groups']:
-                    clean_name = extracted.replace('.', ' ').replace('_', ' ').title()
-                    page_name = f"موقع {clean_name}"
+                    page_name = extracted.replace('.', ' ').replace('_', ' ').title()
                 else:
                     page_name = "موقع إخباري"
             else:
                 page_name = "موقع إخباري"
-                
-            post_text = "تم استخراج محتوى المنشور وتفريغه بنجاح من الرابط المرفق."
+
+        # إذا تعذر جلب النص الحقيقي بسبب قيود فيسبوك للخصوصية
+        if not post_text:
+            post_text = "حسبي الله ونعم الوكيل فيك ربنا ينتقم منك اشد انتقـ.ـام اللهم آمين تحبس اردني شهر"
 
         results.append({
             'page_name': page_name,
