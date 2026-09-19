@@ -1,96 +1,240 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-from bs4 import BeautifulSoup
+import os
 import re
 
 app = Flask(__name__)
 
-@app.route('/')
+REFETCHER_API_KEY = os.environ.get("REFETCHER_API_KEY", "").strip()
+REFETCHER_URL = "https://api.refetcher.com/"
+
+
+@app.route("/")
 def home():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/extract', methods=['POST'])
+
+def clean_facebook_url(url):
+    url = url.strip()
+
+    # إزالة المسافات والرموز غير الضرورية
+    url = url.replace(" ", "")
+
+    # قبول facebook.com و www.facebook.com
+    if not re.match(r"^https?://", url, re.IGNORECASE):
+        url = "https://" + url
+
+    return url
+
+
+def get_error_message(status_code, data):
+    if status_code == 401:
+        return "مفتاح Refetcher غير صحيح أو غير موجود."
+
+    if status_code == 402:
+        return "رصيد Refetcher غير كافٍ."
+
+    if status_code == 404:
+        return "المنشور خاص أو محذوف أو غير متاح للعامة."
+
+    if status_code == 429:
+        return "تم تجاوز الحد المسموح مؤقتًا. حاول مرة أخرى."
+
+    if status_code == 400:
+        return "الرابط غير صالح أو الطلب غير صحيح."
+
+    if isinstance(data, dict):
+        error = data.get("error")
+
+        if isinstance(error, dict):
+            return (
+                error.get("message")
+                or error.get("code")
+                or "حدث خطأ أثناء استخراج البيانات."
+            )
+
+        if isinstance(error, str):
+            return error
+
+    return f"حدث خطأ من خدمة الاستخراج ({status_code})."
+
+
+@app.route("/extract", methods=["POST"])
 def extract():
-    data = request.get_json() or {}
-    raw_urls = data.get('urls', '')
-    
-    url_list = [u.strip() for u in raw_urls.split('\n') if u.strip()]
-    
-    if not url_list:
-        return jsonify({'status': 'error', 'message': 'الرجاء إدخال رابط واحد على الأقل.'})
-    
-    results = []
-    
-    # التمويه بأن الطلب قادم من محرك البحث Google لفتح المحتوى المغلق من فيسبوك
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-        'Accept-Language': 'ar,en-US;q=0.9,en;q=0.8'
-    }
+    try:
+        data = request.get_json(silent=True) or {}
+        raw_urls = data.get("urls", "")
 
-    for url in url_list:
-        page_name = ""
-        post_text = ""
-        
-        # 1. استخراج واكتشاف اسم الصفحة من الرابط بدقة
-        if "ALFAISALYSCJO" in url or "faisaly" in url.lower():
-            page_name = "موقع النادي الفيصلي الأردني"
-        elif "SarahaNews" in url or "sarahanews" in url.lower():
-            page_name = "موقع صراحة نيوز الإخباري"
-        elif "RadioHala" in url or "radiohala" in url.lower():
-            page_name = "موقع راديو هالة الإخباري"
-        elif "AmmonNews" in url or "ammon" in url.lower():
-            page_name = "موقع عمون الإخباري"
-        elif "RoyaNews" in url or "roya" in url.lower():
-            page_name = "موقع رؤيا الإخباري"
-        else:
-            match = re.search(r'facebook\.com/([^/?#]+)', url)
-            if match and match.group(1):
-                clean = match.group(1).replace('.', ' ').replace('_', ' ').replace('-', ' ')
-                page_name = "موقع " + clean.title()
-            else:
-                page_name = "موقع إخباري"
+        if not isinstance(raw_urls, str):
+            return jsonify({
+                "status": "error",
+                "message": "صيغة الروابط غير صحيحة."
+            }), 400
 
-        # 2. جلب النص واستخراجه من الميتا داتا الرسمية للمنشور
+        # كل رابط في سطر
+        urls = [
+            clean_facebook_url(x)
+            for x in raw_urls.splitlines()
+            if x.strip()
+        ]
+
+        # إزالة التكرار مع الحفاظ على الترتيب
+        urls = list(dict.fromkeys(urls))
+
+        if not urls:
+            return jsonify({
+                "status": "error",
+                "message": "ضع رابط Facebook واحدًا على الأقل."
+            }), 400
+
+        # Refetcher يسمح بحد أقصى 50 رابطًا في الطلب
+        if len(urls) > 50:
+            return jsonify({
+                "status": "error",
+                "message": "يمكنك إدخال 50 رابطًا كحد أقصى في المرة الواحدة."
+            }), 400
+
+        # التأكد أن الروابط Facebook
+        valid_urls = []
+
+        for url in urls:
+            lower = url.lower()
+
+            if (
+                "facebook.com/" in lower
+                or "fb.com/" in lower
+                or "fb.watch/" in lower
+            ):
+                valid_urls.append(url)
+
+        if not valid_urls:
+            return jsonify({
+                "status": "error",
+                "message": "لم يتم العثور على روابط Facebook صحيحة."
+            }), 400
+
+        if not REFETCHER_API_KEY:
+            return jsonify({
+                "status": "error",
+                "message": "لم يتم وضع REFETCHER_API_KEY في إعدادات Render."
+            }), 500
+
+        # طلب واحد لكل الروابط
+        payload = {
+            "urls": valid_urls
+        }
+
+        headers = {
+            "X-API-Key": REFETCHER_API_KEY,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
+
+        response = requests.post(
+            REFETCHER_URL,
+            json=payload,
+            headers=headers,
+            timeout=120
+        )
+
         try:
-            res = requests.get(url, headers=headers, timeout=6)
-            soup = BeautifulSoup(res.text, 'html.parser')
-            
-            # البحث في عناوين ووسومات المشاركة OpenGraph
-            og_title = soup.find('meta', property='og:title')
-            og_desc = soup.find('meta', property='og:description')
-            
-            extracted_text = ""
-            if og_desc and og_desc.get('content'):
-                extracted_text = og_desc['content'].strip()
-            elif og_title and og_title.get('content'):
-                extracted_text = og_title['content'].strip()
-            
-            # فحص وتنقية النص من أي عبارات حظر
-            forbidden_phrases = ["تسجيل الدخول", "Log in", "Explore the things", "يمكنك رؤية المنشورات", "Sign Up", "Facebook"]
-            if extracted_text and not any(phrase in extracted_text for phrase in forbidden_phrases):
-                post_text = extracted_text
+            api_data = response.json()
         except Exception:
-            pass
+            api_data = {}
 
-        # 3. صياغة نص احتياطي نظيف ومناسب لاسم الصفحة في حال تشفير النص تماماً
-        if not post_text:
-            if "ALFAISALYSCJO" in url:
-                post_text = "تغطية إخبارية وبيان رسمي صادر عن إدارة النادي الفيصلي الأردني."
-            elif "SarahaNews" in url:
-                post_text = "تفاصيل التغطية الصحفية والتحديثات الإخبارية نقلاً عن وكالة صراحة نيوز."
-            else:
-                post_text = "تغطية صحفية وتفاصيل المنشور الإخباري المرفق في الرابط."
+        # خطأ على مستوى الطلب
+        if response.status_code != 200:
+            return jsonify({
+                "status": "error",
+                "message": get_error_message(
+                    response.status_code,
+                    api_data
+                )
+            }), response.status_code
 
-        results.append({
-            'page_name': page_name,
-            'post_text': post_text,
-            'post_url': url
+        api_results = api_data.get("results", [])
+
+        results = []
+
+        for item in api_results:
+
+            original_url = item.get("url", "")
+
+            if item.get("success") is not True:
+                results.append({
+                    "success": False,
+                    "page_name": "غير متوفر",
+                    "post_text": "",
+                    "post_url": original_url,
+                    "error": (
+                        item.get("error", {}).get("message")
+                        if isinstance(item.get("error"), dict)
+                        else str(item.get("error", "تعذر استخراج المنشور"))
+                    )
+                })
+                continue
+
+            post = item.get("post") or {}
+            author = item.get("author") or {}
+
+            # اسم الصفحة / الحساب
+            page_name = (
+                author.get("name")
+                or author.get("handle")
+                or "اسم الصفحة غير متوفر"
+            )
+
+            # نص المنشور
+            post_text = (
+                post.get("caption")
+                or ""
+            ).strip()
+
+            # الرابط الأصلي أو الرابط المطبع من Refetcher
+            normalized_url = (
+                post.get("normalizedUrl")
+                or original_url
+            )
+
+            results.append({
+                "success": True,
+                "page_name": page_name,
+                "post_text": post_text,
+                "post_url": normalized_url,
+
+                # معلومات إضافية مفيدة
+                "published_at": post.get("publishedAt"),
+                "type": post.get("type"),
+
+                "metrics": item.get("metrics") or {}
+            })
+
+        return jsonify({
+            "status": "success",
+            "results": results,
+            "total": len(results)
         })
 
-    return jsonify({
-        'status': 'success',
-        'results': results
-    })
+    except requests.exceptions.Timeout:
+        return jsonify({
+            "status": "error",
+            "message": "انتهت مهلة الاتصال بخدمة Facebook. حاول مرة أخرى."
+        }), 504
 
-if __name__ == '__main__':
-    app.run()
+    except requests.exceptions.RequestException as e:
+        return jsonify({
+            "status": "error",
+            "message": "تعذر الاتصال بخدمة Refetcher."
+        }), 502
+
+    except Exception as e:
+        print("SERVER ERROR:", repr(e))
+
+        return jsonify({
+            "status": "error",
+            "message": "حدث خطأ غير متوقع في الخادم."
+        }), 500
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
