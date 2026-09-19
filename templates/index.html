@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 
 <head>
 <meta charset="UTF-8">
@@ -10,344 +10,251 @@
 <style>
 
 *{
-    box-sizing:border-box;
+    box-sizing:border-box
 }
 
 body{
     margin:0;
     font-family:Arial,Tahoma,sans-serif;
-    background:#f5f6f8;
-    color:#111827;
+    background:#f4f7fb;
+    color:#1f2937
 }
 
 .container{
-    width:min(1000px,94%);
-    margin:25px auto;
+    width:min(1100px,94%);
+    margin:40px auto
 }
 
-/* العنوان */
-
 .header{
-    background:#ffffff;
-    border:1px solid #e5e7eb;
-    padding:20px;
-    border-radius:12px;
-    margin-bottom:15px;
+    background:linear-gradient(135deg,#1877f2,#6c2bd9);
+    color:#fff;
+    padding:35px 25px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.12);
+    margin-bottom:25px
 }
 
 .header h1{
-    margin:0;
-    font-size:22px;
-    color:#111827;
+    margin:0 0 10px;
+    font-size:30px
 }
 
 .header p{
-    margin:7px 0 0;
-    color:#6b7280;
-    font-size:13px;
+    margin:0;
+    opacity:.92;
+    font-size:16px
 }
 
-/* صندوق الروابط */
-
-.input-card{
+.card{
     background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:12px;
-    padding:15px;
-    margin-bottom:15px;
+    border-radius:18px;
+    padding:25px;
+    box-shadow:0 5px 20px rgba(0,0,0,.07);
+    margin-bottom:25px
 }
 
-.input-title{
-    font-size:14px;
+label{
+    display:block;
     font-weight:bold;
-    margin-bottom:8px;
-}
-
-.input-row{
-    display:flex;
-    gap:8px;
-    align-items:stretch;
+    margin-bottom:10px
 }
 
 textarea{
-    flex:1;
-    height:75px;
-    resize:none;
-    border:1px solid #d1d5db;
-    border-radius:8px;
-    padding:10px;
-    font-size:13px;
-    direction:ltr;
-    text-align:left;
+    width:100%;
+    min-height:180px;
+    resize:vertical;
+    border:2px solid #e2e8f0;
+    border-radius:12px;
+    padding:15px;
+    font-size:15px;
     outline:none;
+    direction:ltr;
+    text-align:left
 }
 
 textarea:focus{
-    border-color:#1e3a8a;
+    border-color:#1877f2;
+    box-shadow:0 0 0 3px rgba(24,119,242,.1)
 }
 
-.extract-btn{
-    width:145px;
-    border:0;
-    border-radius:8px;
-    background:#1e3a8a;
-    color:white;
-    font-size:13px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.extract-btn:hover{
-    background:#172554;
-}
-
-.extract-btn:disabled{
-    opacity:.6;
-    cursor:not-allowed;
-}
-
-/* الخيارات */
-
-.options{
+.buttons{
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-top:10px;
     gap:10px;
+    margin-top:15px
 }
 
-.option-text{
-    font-size:12px;
-    color:#6b7280;
+button{
+    border:0;
+    border-radius:10px;
+    padding:13px 20px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer
 }
 
-.copy-btn{
-    border:1px solid #d1d5db;
-    background:#fff;
-    color:#374151;
-    border-radius:7px;
-    padding:7px 12px;
-    font-size:12px;
-    cursor:pointer;
+.extract{
+    background:#1877f2;
+    color:#fff;
+    flex:1
 }
 
-.copy-btn:hover{
-    background:#f3f4f6;
+.copy{
+    background:#16a34a;
+    color:#fff
 }
 
-/* الحالة */
+button:disabled{
+    opacity:.6;
+    cursor:not-allowed
+}
 
 #status{
+    margin-top:15px;
     display:none;
-    margin-top:10px;
-    padding:9px 12px;
-    border-radius:7px;
-    font-size:12px;
+    padding:12px;
+    border-radius:10px;
     text-align:center;
+    font-weight:bold
 }
 
 .loading{
     display:block!important;
     background:#eff6ff;
-    color:#1d4ed8;
+    color:#1d4ed8
 }
 
 .error{
     display:block!important;
     background:#fef2f2;
-    color:#b91c1c;
+    color:#b91c1c
 }
 
 .success{
     display:block!important;
     background:#f0fdf4;
-    color:#15803d;
+    color:#15803d
 }
 
-/* النتائج */
-
-.results-card{
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:12px;
-    padding:15px;
-}
-
-.results-top{
+.results-header{
     display:flex;
-    align-items:center;
     justify-content:space-between;
-    margin-bottom:12px;
+    align-items:center;
+    margin-bottom:15px
 }
 
-.results-title{
-    font-size:15px;
-    font-weight:bold;
+.results-header h2{
+    margin:0;
+    font-size:21px
 }
-
-/* الفلاتر */
-
-.filters{
-    display:flex;
-    gap:5px;
-    flex-wrap:wrap;
-}
-
-.filter-btn{
-    border:1px solid #d1d5db;
-    background:#fff;
-    color:#4b5563;
-    border-radius:6px;
-    padding:5px 10px;
-    font-size:11px;
-    cursor:pointer;
-}
-
-.filter-btn:hover{
-    background:#f3f4f6;
-}
-
-.filter-btn.active{
-    background:#1e3a8a;
-    color:#fff;
-    border-color:#1e3a8a;
-}
-
-/* قائمة النتائج */
 
 #results{
     display:flex;
     flex-direction:column;
-    gap:7px;
+    gap:15px
 }
-
-/* المنشور */
 
 .result{
-    border-bottom:1px solid #eeeeee;
-    padding:8px 4px;
-    font-size:13px;
-    line-height:1.8;
+    border:1px solid #e5e7eb;
+    border-radius:15px;
+    padding:18px;
+    background:#fff
 }
 
-.result:last-child{
-    border-bottom:none;
+.result.ok{
+    border-right:5px solid #16a34a
 }
 
-/* السطر الرئيسي */
-
-.result-line{
-    display:block;
+.result.failed{
+    border-right:5px solid #dc2626
 }
-
-/* رقم المنشور */
-
-.number{
-    display:inline-block;
-    color:#9ca3af;
-    font-size:11px;
-    margin-left:5px;
-}
-
-/* اسم الصفحة */
 
 .page-link{
-    color:#0b2a6f;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:19px;
     font-weight:bold;
+    color:#1877f2;
     text-decoration:none;
-    font-size:13px;
+    margin-bottom:10px
 }
 
 .page-link:hover{
-    color:#061b4a;
     text-decoration:underline;
+    color:#0d47a1
 }
-
-/* : */
-
-.separator{
-    color:#555;
-    margin:0 3px;
-}
-
-/* نص المنشور */
-
-.post-inline{
-    color:#111111;
-    font-size:13px;
-    white-space:pre-wrap;
-}
-
-/* المنصة */
 
 .platform{
     display:inline-block;
-    margin-right:8px;
-    padding:2px 6px;
-    border-radius:4px;
+    font-size:12px;
+    padding:5px 9px;
+    border-radius:20px;
     background:#f1f5f9;
-    color:#64748b;
-    font-size:9px;
-    vertical-align:middle;
+    color:#475569;
+    margin-right:5px
 }
 
-/* المنشور الفاشل */
-
-.failed{
-    color:#b91c1c;
-    font-size:13px;
+.field{
+    margin-top:10px;
+    line-height:1.8
 }
 
-.failed .number{
-    color:#b91c1c;
+.field-title{
+    font-weight:bold;
+    color:#475569;
+    margin-bottom:5px
 }
 
-/* لا توجد نتائج */
+.post-text{
+    white-space:pre-wrap;
+    background:#f8fafc;
+    border-radius:10px;
+    padding:12px;
+    line-height:1.9
+}
 
 .empty{
     text-align:center;
-    color:#9ca3af;
-    padding:30px 10px;
-    font-size:13px;
+    color:#64748b;
+    padding:30px
 }
 
-/* الجوال */
+.number{
+    display:inline-block;
+    background:#1877f2;
+    color:#fff;
+    min-width:28px;
+    height:28px;
+    line-height:28px;
+    text-align:center;
+    border-radius:50%;
+    margin-left:7px;
+    font-size:13px
+}
 
 @media(max-width:700px){
 
     .container{
-        width:96%;
-        margin:15px auto;
+        margin:20px auto
     }
 
-    .input-row{
-        flex-direction:column;
+    .header h1{
+        font-size:24px
     }
 
-    textarea{
-        width:100%;
-        height:100px;
+    .buttons{
+        flex-direction:column
     }
 
-    .extract-btn{
-        width:100%;
-        height:40px;
-    }
-
-    .results-top{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:10px;
-    }
-
-    .options{
-        flex-direction:column;
-        align-items:flex-start;
+    .copy{
+        width:100%
     }
 
 }
 
 </style>
+
 </head>
 
 
@@ -355,56 +262,59 @@ textarea:focus{
 
 <div class="container">
 
-    <!-- العنوان -->
 
     <div class="header">
 
-        <h1>📱 تفريغ منشورات السوشيال ميديا</h1>
+        <h1>
+            📱 تفريغ منشورات السوشيال ميديا
+        </h1>
 
         <p>
-            استخراج نص المنشورات من Facebook و Instagram و X / Twitter
+            Facebook • Instagram • X / Twitter
         </p>
 
     </div>
 
 
-    <!-- إدخال الروابط -->
+    <div class="card">
 
-    <div class="input-card">
-
-        <div class="input-title">
+        <label>
             🔗 روابط المنشورات
-        </div>
+        </label>
 
-        <div class="input-row">
 
-            <textarea
-                id="links"
-                placeholder="ضع كل رابط في سطر منفصل..."
-            ></textarea>
+        <textarea
+            id="links"
+            placeholder="ضع كل رابط في سطر منفصل
+
+Facebook:
+https://www.facebook.com/...
+
+Instagram:
+https://www.instagram.com/p/...
+
+X:
+https://x.com/.../status/..."
+        ></textarea>
+
+
+        <div class="buttons">
 
             <button
                 id="extractBtn"
-                class="extract-btn"
+                class="extract"
                 onclick="extractPosts()"
             >
-                🔎 استخراج
+                🔎 استخراج المنشورات
             </button>
 
-        </div>
-
-
-        <div class="options">
-
-            <div class="option-text">
-                يمكنك إدخال أكثر من رابط في نفس الوقت.
-            </div>
 
             <button
-                class="copy-btn"
+                id="copyBtn"
+                class="copy"
                 onclick="copyAll()"
             >
-                📋 نسخ النتائج
+                📋 نسخ الكل
             </button>
 
         </div>
@@ -415,55 +325,15 @@ textarea:focus{
     </div>
 
 
-    <!-- النتائج -->
+    <div class="card">
 
-    <div class="results-card">
+        <div class="results-header">
 
-        <div class="results-top">
-
-            <div class="results-title">
+            <h2>
                 📋 النتائج
-                <span id="count"></span>
-            </div>
+            </h2>
 
-
-            <!-- الفلاتر -->
-
-            <div class="filters">
-
-                <button
-                    class="filter-btn active"
-                    data-filter="all"
-                    onclick="filterResults('all',this)"
-                >
-                    الكل
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="Facebook"
-                    onclick="filterResults('Facebook',this)"
-                >
-                    Facebook
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="Instagram"
-                    onclick="filterResults('Instagram',this)"
-                >
-                    Instagram
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="X / Twitter"
-                    onclick="filterResults('X / Twitter',this)"
-                >
-                    X / Twitter
-                </button>
-
-            </div>
+            <span id="count"></span>
 
         </div>
 
@@ -478,6 +348,7 @@ textarea:focus{
 
     </div>
 
+
 </div>
 
 
@@ -485,14 +356,15 @@ textarea:focus{
 
 let currentResults = [];
 
-let currentFilter = "all";
 
-
-/* حماية النص من HTML */
+/* حماية النص */
 
 function escapeHTML(text){
 
-    if(text === null || text === undefined){
+    if(
+        text === null ||
+        text === undefined
+    ){
         return "";
     }
 
@@ -505,11 +377,12 @@ function escapeHTML(text){
 }
 
 
-/* عرض رسالة */
+/* الرسائل */
 
 function showStatus(message,type){
 
-    const status = document.getElementById("status");
+    const status =
+        document.getElementById("status");
 
     status.className = type;
 
@@ -554,10 +427,12 @@ async function extractPosts(){
 
     button.disabled = true;
 
-    button.textContent = "⏳ جاري...";
+    button.textContent =
+        "⏳ جاري الاستخراج...";
 
 
     resultsBox.innerHTML = "";
+
 
     showStatus(
         "⏳ جاري استخراج المنشورات...",
@@ -567,20 +442,22 @@ async function extractPosts(){
 
     try{
 
-        const response = await fetch(
-            "/extract",
-            {
-                method:"POST",
+        const response =
+            await fetch(
+                "/extract",
+                {
+                    method:"POST",
 
-                headers:{
-                    "Content-Type":"application/json"
-                },
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                body:JSON.stringify({
-                    urls:links.join("\n")
-                })
-            }
-        );
+                    body:JSON.stringify({
+                        urls:links.join("\n")
+                    })
+                }
+            );
 
 
         const data =
@@ -604,29 +481,112 @@ async function extractPosts(){
             data.results || [];
 
 
-        currentFilter = "all";
-
-
         document
-            .querySelectorAll(".filter-btn")
-            .forEach(btn => {
-
-                btn.classList.remove("active");
-
-            });
-
-
-        document
-            .querySelector('[data-filter="all"]')
-            .classList.add("active");
-
-
-        document.getElementById("count")
+            .getElementById("count")
             .textContent =
-            ` (${currentResults.length})`;
+            `${currentResults.length} نتيجة`;
 
 
-        renderResults();
+        if(
+            !currentResults.length
+        ){
+
+            resultsBox.innerHTML =
+                '<div class="empty">لم يتم العثور على نتائج.</div>';
+
+        }
+
+        else{
+
+            currentResults.forEach(
+                (item,index) => {
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    if(item.success){
+
+                        div.className =
+                            "result ok";
+
+
+                        div.innerHTML = `
+
+                            <a
+                                class="page-link"
+                                href="${escapeHTML(item.post_url)}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+
+                                <span class="number">
+                                    ${index + 1}
+                                </span>
+
+                                ${escapeHTML(
+                                    item.page_name
+                                )}
+
+                                <span class="platform">
+                                    ${escapeHTML(
+                                        item.platform
+                                    )}
+                                </span>
+
+                            </a>
+
+
+                            <div class="field">
+
+                                <div class="field-title">
+                                    📝 نص المنشور:
+                                </div>
+
+                                <div class="post-text">
+                                    ${escapeHTML(
+                                        item.post_text ||
+                                        "لا يوجد نص منشور ظاهر."
+                                    )}
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }
+
+                    else{
+
+                        div.className =
+                            "result failed";
+
+
+                        div.innerHTML = `
+
+                            <div class="page-link">
+
+                                <span class="number">
+                                    ${index + 1}
+                                </span>
+
+                                ❌ الرابط غير صالح
+
+                            </div>
+
+                        `;
+
+                    }
+
+
+                    resultsBox.appendChild(div);
+
+                }
+            );
+
+        }
 
 
         showStatus(
@@ -635,9 +595,12 @@ async function extractPosts(){
         );
 
 
-    }catch(error){
+    }
+
+    catch(error){
 
         currentResults = [];
+
 
         resultsBox.innerHTML =
             `<div class="empty">
@@ -657,154 +620,10 @@ async function extractPosts(){
 
         button.disabled = false;
 
-        button.textContent = "🔎 استخراج";
+        button.textContent =
+            "🔎 استخراج المنشورات";
 
     }
-
-}
-
-
-/* عرض النتائج */
-
-function renderResults(){
-
-    const resultsBox =
-        document.getElementById("results");
-
-
-    let filteredResults =
-        currentResults;
-
-
-    if(currentFilter !== "all"){
-
-        filteredResults =
-            currentResults.filter(
-                item =>
-                    item.platform === currentFilter
-            );
-
-    }
-
-
-    if(!filteredResults.length){
-
-        resultsBox.innerHTML =
-            `<div class="empty">
-                لا توجد منشورات في هذا القسم.
-            </div>`;
-
-        return;
-    }
-
-
-    resultsBox.innerHTML = "";
-
-
-    filteredResults.forEach(
-        (item,index) => {
-
-
-            const div =
-                document.createElement("div");
-
-
-            if(item.success){
-
-                div.className =
-                    "result";
-
-
-                div.innerHTML = `
-
-                    <div class="result-line">
-
-                        <span class="number">
-                            ${index + 1}.
-                        </span>
-
-                        <a
-                            class="page-link"
-                            href="${escapeHTML(item.post_url)}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            ${escapeHTML(item.page_name)}
-                        </a>
-
-                        <span class="separator">:</span>
-
-                        <span class="post-inline">
-                            ${escapeHTML(
-                                item.post_text ||
-                                "لا يوجد نص منشور ظاهر."
-                            )}
-                        </span>
-
-                        <span class="platform">
-                            ${escapeHTML(item.platform)}
-                        </span>
-
-                    </div>
-
-                `;
-
-            }
-
-            else{
-
-                div.className =
-                    "result failed";
-
-
-                div.innerHTML = `
-
-                    <div class="result-line">
-
-                        <span class="number">
-                            ${index + 1}.
-                        </span>
-
-                        ❌ الرابط غير صالح
-
-                    </div>
-
-                `;
-
-            }
-
-
-            resultsBox.appendChild(div);
-
-        }
-    );
-
-}
-
-
-/* الفلاتر */
-
-function filterResults(
-    filter,
-    button
-){
-
-    currentFilter = filter;
-
-
-    document
-        .querySelectorAll(".filter-btn")
-        .forEach(btn => {
-
-            btn.classList.remove("active");
-
-        });
-
-
-    button.classList.add("active");
-
-
-    renderResults();
 
 }
 
@@ -828,21 +647,19 @@ async function copyAll(){
 
 
     currentResults.forEach(
-        item => {
+        (item,index) => {
 
-            if(item.success){
+            output +=
+                `${index + 1}. ${
+                    item.page_name ||
+                    "غير متوفر"
+                }\n`;
 
-                output +=
-                    `${item.page_name || "غير متوفر"} : ${item.post_text || "غير متوفر"}\n`;
-
-            }
-
-            else{
-
-                output +=
-                    `الرابط غير صالح\n`;
-
-            }
+            output +=
+                `النص: ${
+                    item.post_text ||
+                    "غير متوفر"
+                }\n\n`;
 
         }
     );
@@ -861,7 +678,9 @@ async function copyAll(){
         );
 
 
-    }catch(e){
+    }
+
+    catch(e){
 
         showStatus(
             "❌ تعذر النسخ.",
