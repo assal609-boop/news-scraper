@@ -14,43 +14,47 @@ def home():
     return render_template("index.html")
 
 
-def clean_facebook_url(url):
-    url = url.strip()
+def clean_url(url):
+    url = url.strip().replace(" ", "")
 
-    # إزالة المسافات والرموز غير الضرورية
-    url = url.replace(" ", "")
-
-    # قبول facebook.com و www.facebook.com
     if not re.match(r"^https?://", url, re.IGNORECASE):
         url = "https://" + url
 
     return url
 
 
-def get_error_message(status_code, data):
+def detect_platform(url):
+    lower = url.lower()
+
+    if "instagram.com" in lower:
+        return "Instagram"
+
+    if "x.com" in lower or "twitter.com" in lower:
+        return "X / Twitter"
+
+    if "facebook.com" in lower or "fb.watch" in lower:
+        return "Facebook"
+
+    return "غير معروف"
+
+
+def error_message(status_code, data):
     if status_code == 401:
-        return "مفتاح Refetcher غير صحيح أو غير موجود."
+        return "مفتاح Refetcher غير صحيح."
 
     if status_code == 402:
         return "رصيد Refetcher غير كافٍ."
 
-    if status_code == 404:
-        return "المنشور خاص أو محذوف أو غير متاح للعامة."
-
     if status_code == 429:
-        return "تم تجاوز الحد المسموح مؤقتًا. حاول مرة أخرى."
-
-    if status_code == 400:
-        return "الرابط غير صالح أو الطلب غير صحيح."
+        return "تم تجاوز الحد مؤقتًا. حاول مرة أخرى."
 
     if isinstance(data, dict):
         error = data.get("error")
 
         if isinstance(error, dict):
-            return (
-                error.get("message")
-                or error.get("code")
-                or "حدث خطأ أثناء استخراج البيانات."
+            return error.get(
+                "message",
+                "حدث خطأ أثناء استخراج البيانات."
             )
 
         if isinstance(error, str):
@@ -61,8 +65,11 @@ def get_error_message(status_code, data):
 
 @app.route("/extract", methods=["POST"])
 def extract():
+
     try:
+
         data = request.get_json(silent=True) or {}
+
         raw_urls = data.get("urls", "")
 
         if not isinstance(raw_urls, str):
@@ -71,64 +78,74 @@ def extract():
                 "message": "صيغة الروابط غير صحيحة."
             }), 400
 
-        # كل رابط في سطر
+
         urls = [
-            clean_facebook_url(x)
+            clean_url(x)
             for x in raw_urls.splitlines()
             if x.strip()
         ]
 
-        # إزالة التكرار مع الحفاظ على الترتيب
+
+        # إزالة الروابط المكررة
         urls = list(dict.fromkeys(urls))
+
 
         if not urls:
             return jsonify({
                 "status": "error",
-                "message": "ضع رابط Facebook واحدًا على الأقل."
+                "message": "ضع رابطًا واحدًا على الأقل."
             }), 400
 
-        # Refetcher يسمح بحد أقصى 50 رابطًا في الطلب
+
         if len(urls) > 50:
             return jsonify({
                 "status": "error",
-                "message": "يمكنك إدخال 50 رابطًا كحد أقصى في المرة الواحدة."
+                "message": "الحد الأقصى 50 رابطًا في المرة الواحدة."
             }), 400
 
-        # التأكد أن الروابط Facebook
+
         valid_urls = []
 
         for url in urls:
+
             lower = url.lower()
 
             if (
                 "facebook.com/" in lower
-                or "fb.com/" in lower
                 or "fb.watch/" in lower
+                or "instagram.com/" in lower
+                or "x.com/" in lower
+                or "twitter.com/" in lower
             ):
                 valid_urls.append(url)
+
 
         if not valid_urls:
             return jsonify({
                 "status": "error",
-                "message": "لم يتم العثور على روابط Facebook صحيحة."
+                "message": "لم يتم العثور على روابط Facebook أو Instagram أو X صحيحة."
             }), 400
 
+
         if not REFETCHER_API_KEY:
+
             return jsonify({
                 "status": "error",
-                "message": "لم يتم وضع REFETCHER_API_KEY في إعدادات Render."
+                "message": "مفتاح REFETCHER_API_KEY غير موجود في Render."
             }), 500
 
-        # طلب واحد لكل الروابط
-        payload = {
-            "urls": valid_urls
-        }
 
         headers = {
             "X-API-Key": REFETCHER_API_KEY,
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
+
+
+        payload = {
+            "urls": valid_urls
+        }
+
 
         response = requests.post(
             REFETCHER_URL,
@@ -137,52 +154,78 @@ def extract():
             timeout=120
         )
 
+
         try:
             api_data = response.json()
         except Exception:
             api_data = {}
 
-        # خطأ على مستوى الطلب
+
         if response.status_code != 200:
+
             return jsonify({
                 "status": "error",
-                "message": get_error_message(
+                "message": error_message(
                     response.status_code,
                     api_data
                 )
             }), response.status_code
 
+
         api_results = api_data.get("results", [])
 
         results = []
+
 
         for item in api_results:
 
             original_url = item.get("url", "")
 
+            platform = (
+                item.get("platform")
+                or detect_platform(original_url)
+            )
+
+
+            # المنشور فشل
             if item.get("success") is not True:
+
+                error = item.get("error")
+
+                if isinstance(error, dict):
+                    message = error.get(
+                        "message",
+                        "تعذر الوصول إلى المنشور."
+                    )
+                else:
+                    message = str(
+                        error or "تعذر الوصول إلى المنشور."
+                    )
+
+
                 results.append({
                     "success": False,
+                    "platform": platform,
                     "page_name": "غير متوفر",
                     "post_text": "",
                     "post_url": original_url,
-                    "error": (
-                        item.get("error", {}).get("message")
-                        if isinstance(item.get("error"), dict)
-                        else str(item.get("error", "تعذر استخراج المنشور"))
-                    )
+                    "error": message
                 })
+
                 continue
+
 
             post = item.get("post") or {}
             author = item.get("author") or {}
 
-            # اسم الصفحة / الحساب
+
+            # اسم الحساب
             page_name = (
                 author.get("name")
                 or author.get("handle")
-                or "اسم الصفحة غير متوفر"
+                or "الحساب غير معروف"
             )
+
 
             # نص المنشور
             post_text = (
@@ -190,44 +233,58 @@ def extract():
                 or ""
             ).strip()
 
-            # الرابط الأصلي أو الرابط المطبع من Refetcher
-            normalized_url = (
+
+            # الرابط الذي سنربطه باسم الحساب
+            post_url = (
                 post.get("normalizedUrl")
                 or original_url
             )
 
+
             results.append({
+
                 "success": True,
+
+                "platform": platform,
+
                 "page_name": page_name,
+
                 "post_text": post_text,
-                "post_url": normalized_url,
 
-                # معلومات إضافية مفيدة
-                "published_at": post.get("publishedAt"),
-                "type": post.get("type"),
+                "post_url": post_url
 
-                "metrics": item.get("metrics") or {}
             })
 
+
         return jsonify({
+
             "status": "success",
+
             "results": results,
+
             "total": len(results)
+
         })
 
+
     except requests.exceptions.Timeout:
+
         return jsonify({
             "status": "error",
-            "message": "انتهت مهلة الاتصال بخدمة Facebook. حاول مرة أخرى."
+            "message": "انتهت مهلة الاتصال. حاول مرة أخرى."
         }), 504
 
-    except requests.exceptions.RequestException as e:
+
+    except requests.exceptions.RequestException:
+
         return jsonify({
             "status": "error",
             "message": "تعذر الاتصال بخدمة Refetcher."
         }), 502
 
+
     except Exception as e:
+
         print("SERVER ERROR:", repr(e))
 
         return jsonify({
@@ -237,4 +294,8 @@ def extract():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000))
+    )
