@@ -48,19 +48,22 @@ def error_message(status_code, data):
     if status_code == 429:
         return "تم تجاوز الحد مؤقتًا. حاول مرة أخرى."
 
+    if status_code == 502:
+        return "الرابط غير صالح"
+
     if isinstance(data, dict):
         error = data.get("error")
 
         if isinstance(error, dict):
             return error.get(
                 "message",
-                "حدث خطأ أثناء استخراج البيانات."
+                "الرابط غير صالح"
             )
 
         if isinstance(error, str):
             return error
 
-    return f"حدث خطأ من خدمة الاستخراج ({status_code})."
+    return "الرابط غير صالح"
 
 
 @app.route("/extract", methods=["POST"])
@@ -78,17 +81,14 @@ def extract():
                 "message": "صيغة الروابط غير صحيحة."
             }), 400
 
-
         urls = [
             clean_url(x)
             for x in raw_urls.splitlines()
             if x.strip()
         ]
 
-
         # إزالة الروابط المكررة
         urls = list(dict.fromkeys(urls))
-
 
         if not urls:
             return jsonify({
@@ -96,13 +96,11 @@ def extract():
                 "message": "ضع رابطًا واحدًا على الأقل."
             }), 400
 
-
         if len(urls) > 50:
             return jsonify({
                 "status": "error",
                 "message": "الحد الأقصى 50 رابطًا في المرة الواحدة."
             }), 400
-
 
         valid_urls = []
 
@@ -119,13 +117,11 @@ def extract():
             ):
                 valid_urls.append(url)
 
-
         if not valid_urls:
             return jsonify({
                 "status": "error",
-                "message": "لم يتم العثور على روابط Facebook أو Instagram أو X صحيحة."
+                "message": "الرابط غير صالح"
             }), 400
-
 
         if not REFETCHER_API_KEY:
 
@@ -134,18 +130,15 @@ def extract():
                 "message": "مفتاح REFETCHER_API_KEY غير موجود في Render."
             }), 500
 
-
         headers = {
             "X-API-Key": REFETCHER_API_KEY,
             "Content-Type": "application/json",
             "Accept": "application/json"
         }
 
-
         payload = {
             "urls": valid_urls
         }
-
 
         response = requests.post(
             REFETCHER_URL,
@@ -154,12 +147,10 @@ def extract():
             timeout=120
         )
 
-
         try:
             api_data = response.json()
         except Exception:
             api_data = {}
-
 
         if response.status_code != 200:
 
@@ -171,11 +162,9 @@ def extract():
                 )
             }), response.status_code
 
-
         api_results = api_data.get("results", [])
 
         results = []
-
 
         for item in api_results:
 
@@ -186,22 +175,13 @@ def extract():
                 or detect_platform(original_url)
             )
 
-
             # المنشور فشل
             if item.get("success") is not True:
 
                 error = item.get("error")
 
-                if isinstance(error, dict):
-                    message = error.get(
-                        "message",
-                        "تعذر الوصول إلى المنشور."
-                    )
-                else:
-                    message = str(
-                        error or "تعذر الوصول إلى المنشور."
-                    )
-
+                # أي فشل في استخراج الرابط
+                message = "الرابط غير صالح"
 
                 results.append({
                     "success": False,
@@ -214,10 +194,8 @@ def extract():
 
                 continue
 
-
             post = item.get("post") or {}
             author = item.get("author") or {}
-
 
             # اسم الحساب
             page_name = (
@@ -226,20 +204,17 @@ def extract():
                 or "الحساب غير معروف"
             )
 
-
             # نص المنشور
             post_text = (
                 post.get("caption")
                 or ""
             ).strip()
 
-
             # الرابط الذي سنربطه باسم الحساب
             post_url = (
                 post.get("normalizedUrl")
                 or original_url
             )
-
 
             results.append({
 
@@ -255,7 +230,6 @@ def extract():
 
             })
 
-
         return jsonify({
 
             "status": "success",
@@ -266,7 +240,6 @@ def extract():
 
         })
 
-
     except requests.exceptions.Timeout:
 
         return jsonify({
@@ -274,14 +247,12 @@ def extract():
             "message": "انتهت مهلة الاتصال. حاول مرة أخرى."
         }), 504
 
-
     except requests.exceptions.RequestException:
 
         return jsonify({
             "status": "error",
-            "message": "تعذر الاتصال بخدمة Refetcher."
+            "message": "تعذر الاتصال بخدمة الاستخراج."
         }), 502
-
 
     except Exception as e:
 
