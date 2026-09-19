@@ -41,10 +41,8 @@
 
     <div id="inputSection" class="mb-4">
         <label class="form-label fw-bold">أدخل روابط المنشورات الإخبارية (رابط في كل سطر):</label>
-        <textarea id="urlsInput" class="form-control mb-3" rows="4" placeholder="ضع الروابط هنا...
-https://www.facebook.com/...
-https://www.facebook.com/..."></textarea>
-        <button class="btn btn-custom w-100 py-2" onclick="processExtract()">استخراج وتفريغ الروابط</button>
+        <textarea id="urlsInput" class="form-control mb-3" rows="4" placeholder="ضع الروابط هنا..."></textarea>
+        <button class="btn btn-custom w-100 py-2" onclick="extractUrls()">استخراج وتفريغ الروابط</button>
     </div>
 
     <div class="results-box">
@@ -63,89 +61,60 @@ https://www.facebook.com/..."></textarea>
 </div>
 
 <script>
-    let extractedData = [];
+    let currentResults = [];
 
-    async function processExtract() {
-        const urlsInput = document.getElementById('urlsInput');
-        const rawUrls = urlsInput.value.trim();
-
-        if (!rawUrls) {
-            alert('يرجى إدخال رابط واحد على الأقل');
+    async function extractUrls() {
+        const urlsInput = document.getElementById('urlsInput').value;
+        if (!urlsInput.trim()) {
+            alert('يرجى إدخال روابط أولاً');
             return;
         }
 
-        const urlList = rawUrls.split('\n').filter(u => u.trim() !== '');
-        extractedData = [];
+        const listDiv = document.getElementById('resultsList');
+        listDiv.innerHTML = '<div class="text-center py-4 text-muted">جاري تفريغ الروابط... برجاء الانتظار قليلاً</div>';
 
-        for (let url of urlList) {
-            url = url.trim();
-            let pageName = "صفحة إخبارية";
-            let postText = "تم استخراج البيانات المتاحة للمنشور بنجاح.";
-
-            // استخراج اسم الصفحة تلقائياً وديناميكياً من الرابط
-            if (url.includes("ALFAISALYSCJO") || url.toLowerCase().includes("faisaly")) {
-                pageName = "موقع النادي الفيصلي الأردني";
-            } else if (url.includes("SarahaNews") || url.toLowerCase().includes("sarahanews")) {
-                pageName = "موقع صراحة نيوز الإخباري";
-            } else if (url.includes("RadioHala") || url.toLowerCase().includes("radiohala")) {
-                pageName = "موقع راديو هالة الإخباري";
-            } else if (url.includes("AmmonNews") || url.toLowerCase().includes("ammon")) {
-                pageName = "موقع عمون الإخباري";
-            } else if (url.includes("RoyaNews") || url.toLowerCase().includes("roya")) {
-                pageName = "موقع رؤيا الإخباري";
-            } else {
-                let match = url.match(/facebook\.com\/([^/?#]+)/);
-                if (match && match[1]) {
-                    let clean = match[1].replace(/[\._\-]/g, ' ');
-                    pageName = "موقع " + clean.charAt(0).toUpperCase() + clean.slice(1);
-                }
-            }
-
-            // محاولة جلب النص عبر أداة التجهيز المباشرة
-            try {
-                let response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
-                let data = await response.json();
-                if (data.status === 'success' && data.data && data.data.description) {
-                    let desc = data.data.description;
-                    if (!desc.includes("Explore the things") && !desc.includes("يرجى تسجيل الدخول")) {
-                        postText = desc;
-                    }
-                }
-            } catch (e) {}
-
-            extractedData.push({
-                page_name: pageName,
-                post_text: postText,
-                post_url: url
+        try {
+            const response = await fetch('/extract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ urls: urlsInput })
             });
-        }
 
-        renderResults();
+            const data = await response.json();
+            if (data.status === 'success') {
+                currentResults = data.results;
+                renderResults();
+            } else {
+                alert(data.message);
+            }
+        } catch (e) {
+            alert('حدث خطأ أثناء الاتصال بالسيرفر.');
+        }
     }
 
     function renderResults() {
         const listDiv = document.getElementById('resultsList');
         listDiv.innerHTML = '';
 
-        extractedData.forEach(item => {
+        currentResults.forEach(item => {
             const row = document.createElement('div');
             row.className = 'post-item';
             row.innerHTML = `<a href="${item.post_url}" target="_blank" class="page-link">${item.page_name}</a> <span class="fw-bold text-primary">:</span> <span class="post-text">${item.post_text}</span>`;
             listDiv.appendChild(row);
         });
 
-        document.getElementById('totalCount').innerText = `إجمالي الروابط المفرغة: ${extractedData.length} روابط`;
+        document.getElementById('totalCount').innerText = `إجمالي الروابط المفرغة: ${currentResults.length} روابط`;
     }
 
     function copyResults() {
-        if (extractedData.length === 0) return;
-        let textToCopy = extractedData.map(item => `${item.page_name} : ${item.post_text}`).join('\n');
+        if (currentResults.length === 0) return;
+        let textToCopy = currentResults.map(item => `${item.page_name} : ${item.post_text}`).join('\n');
         navigator.clipboard.writeText(textToCopy);
         alert('تم نسخ جميع النتائج بنجاح!');
     }
 
     function clearAll() {
-        extractedData = [];
+        currentResults = [];
         document.getElementById('urlsInput').value = '';
         renderResults();
     }
