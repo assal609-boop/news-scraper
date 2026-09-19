@@ -1,127 +1,645 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تفريغ الروابط بدقة</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+
+    <title>تفريغ منشورات Facebook</title>
+
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8f9fa; padding: 25px; }
-        .card { max-width: 800px; margin: auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); background: #fff; }
-        .row-box { background: #fdfdfe; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-bottom: 12px; }
-        .item-result { padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 16px; line-height: 1.8; }
-        .page-link { color: #0d6efd; font-weight: bold; text-decoration: underline; }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Tahoma, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .container {
+            width: min(1100px, 94%);
+            margin: 40px auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1877f2, #0d47a1);
+            color: white;
+            padding: 35px 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,.12);
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0 0 10px;
+            font-size: 30px;
+        }
+
+        .header p {
+            margin: 0;
+            opacity: .92;
+            font-size: 16px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,.07);
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 15px;
+            outline: none;
+            direction: ltr;
+            text-align: left;
+            transition: .2s;
+        }
+
+        textarea:focus {
+            border-color: #1877f2;
+            box-shadow: 0 0 0 3px rgba(24,119,242,.1);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 10px;
+            padding: 13px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .extract {
+            background: #1877f2;
+            color: white;
+            flex: 1;
+        }
+
+        .extract:hover {
+            background: #0d65d9;
+        }
+
+        .copy {
+            background: #16a34a;
+            color: white;
+        }
+
+        .copy:hover {
+            background: #12813a;
+        }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 15px;
+            display: none;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .loading {
+            display: block !important;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .error {
+            display: block !important;
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .success {
+            display: block !important;
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .results-header h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        #results {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .result {
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 18px;
+            background: #fff;
+        }
+
+        .result.ok {
+            border-right: 5px solid #16a34a;
+        }
+
+        .result.failed {
+            border-right: 5px solid #dc2626;
+        }
+
+        .page {
+            font-size: 19px;
+            font-weight: bold;
+            color: #1877f2;
+            margin-bottom: 10px;
+        }
+
+        .field {
+            margin-top: 10px;
+            line-height: 1.8;
+        }
+
+        .field-title {
+            font-weight: bold;
+            color: #475569;
+        }
+
+        .post-text {
+            white-space: pre-wrap;
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 5px;
+        }
+
+        .url {
+            direction: ltr;
+            text-align: left;
+            word-break: break-all;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
+
+        .url a {
+            color: #1877f2;
+            text-decoration: none;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
+            padding: 30px;
+        }
+
+        .number {
+            display: inline-block;
+            background: #1877f2;
+            color: white;
+            min-width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            margin-left: 7px;
+            font-size: 13px;
+        }
+
+        @media(max-width:700px) {
+
+            .container {
+                margin: 20px auto;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .copy {
+                width: 100%;
+            }
+        }
+
     </style>
 </head>
+
 <body>
 
-<div class="card">
-    <h4 class="fw-bold mb-2 text-center">أداة تفريغ الروابط الدقيقة</h4>
-    <p class="text-muted text-center small mb-4">ضع الروابط لتظهر لك خانة لصق النص لكل رابط للحصول على دقة مطلقة.</p>
-    
-    <div class="mb-3">
-        <label class="form-label fw-bold">الروابط (ضع كل رابط في سطر):</label>
-        <textarea id="linksInput" class="form-control" rows="3" placeholder="https://..." oninput="buildFields()"></textarea>
+<div class="container">
+
+    <div class="header">
+        <h1>📘 تفريغ منشورات Facebook</h1>
+        <p>
+            الصق روابط المنشورات وسيتم استخراج اسم الصفحة ونص المنشور تلقائيًا
+        </p>
     </div>
 
-    <!-- خانات إدخال النص الدقيق لكل رابط -->
-    <div id="dynamicInputs" class="mb-3"></div>
-    
-    <button class="btn btn-primary w-100 mb-4 fw-bold py-2" onclick="generateFinalOutput()">توليد الشكل النهائي للعميل</button>
 
-    <div class="border rounded p-3 bg-light">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold text-success">النتائج الجاهزة للنسخ:</span>
-            <button class="btn btn-sm btn-outline-secondary" onclick="copyResults()">📋 نسخ النتائج</button>
+    <div class="card">
+
+        <label>
+            🔗 روابط Facebook
+        </label>
+
+        <textarea
+            id="links"
+            placeholder="ضع كل رابط في سطر منفصل
+
+مثال:
+https://www.facebook.com/RadioHalaJO/posts/...
+https://www.facebook.com/SarahaNews/posts/...
+https://www.facebook.com/reel/..."
+        ></textarea>
+
+
+        <div class="buttons">
+
+            <button
+                id="extractBtn"
+                class="extract"
+                onclick="extractPosts()">
+                🔎 استخراج المنشورات
+            </button>
+
+            <button
+                id="copyBtn"
+                class="copy"
+                onclick="copyAll()">
+                📋 نسخ الكل
+            </button>
+
         </div>
-        <div id="outputArea" class="text-muted small">قم بإدخال الروابط والنصوص لتظهر النتيجة هنا...</div>
+
+
+        <div id="status"></div>
+
     </div>
+
+
+    <div class="card">
+
+        <div class="results-header">
+
+            <h2>📋 النتائج</h2>
+
+            <span id="count"></span>
+
+        </div>
+
+        <div id="results">
+
+            <div class="empty">
+                لم يتم استخراج أي منشورات بعد.
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
+
 <script>
-    let activeLinks = [];
 
-    function detectPageName(url) {
-        let lower = url.toLowerCase();
-        if (lower.includes('alfaisalyscjo')) return "النادي الفيصلي الأردني";
-        if (lower.includes('sarahanews')) return "صراحة نيوز";
-        if (lower.includes('radiohala')) return "راديو هالة";
-        if (lower.includes('ammonnews')) return "عمون الإخبارية";
-        if (lower.includes('royanews')) return "رؤيا الإخباري";
-        if (lower.includes('alghad')) return "صحيفة الغد";
-        if (lower.includes('facebook') || lower.includes('fb.watch') || lower.includes('share')) return "منشور فيسبوك";
-        
-        try {
-            let d = new URL(url).hostname.replace('www.', '').split('.')[0];
-            if (d) return d.charAt(0).toUpperCase() + d.slice(1);
-        } catch(e) {}
-        return "صفحة إخبارية";
+let currentResults = [];
+
+
+function showStatus(message, type) {
+
+    const status = document.getElementById("status");
+
+    status.className = type;
+    status.textContent = message;
+
+}
+
+
+function escapeHTML(text) {
+
+    if (text === null || text === undefined) {
+        return "";
     }
 
-    function buildFields() {
-        let text = document.getElementById('linksInput').value.trim();
-        let container = document.getElementById('dynamicInputs');
-        container.innerHTML = '';
-        activeLinks = [];
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 
-        if (!text) return;
+}
 
-        let lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        activeLinks = lines;
 
-        if (lines.length > 0) {
-            let html = '<label class="form-label fw-bold small text-primary">الصق نص البوست الدقيق لكل رابط أدناه:</label>';
-            lines.forEach((url, i) => {
-                let pageName = detectPageName(url);
-                html += `
-                    <div class="row-box">
-                        <div class="fw-bold text-dark small mb-1">🔗 الرابط ${i+1} (${pageName}):</div>
-                        <textarea id="text_${i}" class="form-control form-control-sm" rows="2" placeholder="الصق نص المنشور الحقيقي هنا..."></textarea>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
+async function extractPosts() {
+
+    const textarea = document.getElementById("links");
+
+    const button = document.getElementById("extractBtn");
+
+    const resultsBox = document.getElementById("results");
+
+    const raw = textarea.value.trim();
+
+
+    if (!raw) {
+
+        showStatus(
+            "⚠️ ضع رابط Facebook واحدًا على الأقل.",
+            "error"
+        );
+
+        return;
     }
 
-    let finalCopyText = "";
 
-    function generateFinalOutput() {
-        if (activeLinks.length === 0) {
-            alert('الرجاء إدخال روابط أولاً');
-            return;
-        }
+    const links = raw
+        .split(/\r?\n/)
+        .map(x => x.trim())
+        .filter(x => x.length > 0);
 
-        let output = document.getElementById('outputArea');
-        output.innerHTML = '';
-        let textLines = [];
 
-        activeLinks.forEach((url, i) => {
-            let pageName = detectPageName(url);
-            let userText = document.getElementById(`text_${i}`).value.trim();
-            if (!userText) userText = "نص المنشور غير متوفر";
+    button.disabled = true;
 
-            textLines.push(`${pageName} : ${userText}`);
+    button.textContent = "⏳ جاري الاستخراج...";
 
-            let div = document.createElement('div');
-            div.className = 'item-result';
-            div.innerHTML = `<a href="${url}" target="_blank" class="page-link">${pageName}</a> : <span>${userText}</span>`;
-            output.appendChild(div);
+
+    resultsBox.innerHTML = "";
+
+    showStatus(
+        "⏳ جاري الاتصال بـ Facebook واستخراج المنشورات...",
+        "loading"
+    );
+
+
+    try {
+
+        const response = await fetch("/extract", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                urls: links.join("\n")
+            })
+
         });
 
-        finalCopyText = textLines.join('\n');
-        alert('تم توليد النتائج بدقة تامة وجاهزة للنسخ!');
+
+        const data = await response.json();
+
+
+        if (!response.ok || data.status !== "success") {
+
+            throw new Error(
+                data.message || "حدث خطأ أثناء الاستخراج."
+            );
+
+        }
+
+
+        currentResults = data.results || [];
+
+
+        document.getElementById("count").textContent =
+            `${currentResults.length} نتيجة`;
+
+
+        if (currentResults.length === 0) {
+
+            resultsBox.innerHTML = `
+                <div class="empty">
+                    لم يتم العثور على نتائج.
+                </div>
+            `;
+
+        } else {
+
+            currentResults.forEach((item, index) => {
+
+                const div = document.createElement("div");
+
+                if (item.success) {
+
+                    div.className = "result ok";
+
+                    div.innerHTML = `
+
+                        <div class="page">
+                            <span class="number">${index + 1}</span>
+                            ${escapeHTML(item.page_name)}
+                        </div>
+
+
+                        <div class="field">
+
+                            <div class="field-title">
+                                📝 نص المنشور:
+                            </div>
+
+                            <div class="post-text">
+                                ${
+                                    escapeHTML(
+                                        item.post_text ||
+                                        "لا يوجد نص منشور ظاهر."
+                                    )
+                                }
+                            </div>
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <div class="field-title">
+                                🔗 الرابط:
+                            </div>
+
+                            <div class="url">
+
+                                <a
+                                    href="${escapeHTML(item.post_url)}"
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+
+                                    ${escapeHTML(item.post_url)}
+
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                } else {
+
+                    div.className = "result failed";
+
+                    div.innerHTML = `
+
+                        <div class="page">
+                            <span class="number">${index + 1}</span>
+                            ❌ تعذر استخراج المنشور
+                        </div>
+
+                        <div class="field">
+                            ${escapeHTML(
+                                item.error ||
+                                "المنشور غير متاح."
+                            )}
+                        </div>
+
+                        <div class="field">
+
+                            <div class="field-title">
+                                🔗 الرابط:
+                            </div>
+
+                            <div class="url">
+                                ${escapeHTML(item.post_url)}
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                resultsBox.appendChild(div);
+
+            });
+
+        }
+
+
+        showStatus(
+            `✅ تم استخراج ${currentResults.length} نتيجة.`,
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(error);
+
+        currentResults = [];
+
+        resultsBox.innerHTML = `
+            <div class="empty">
+                ❌ ${escapeHTML(error.message)}
+            </div>
+        `;
+
+        showStatus(
+            "❌ " + error.message,
+            "error"
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent = "🔎 استخراج المنشورات";
+
     }
 
-    function copyResults() {
-        if (!finalCopyText) {
-            alert('الرجاء توليد النتائج أولاً');
-            return;
-        }
-        navigator.clipboard.writeText(finalCopyText);
-        alert('تم نسخ النتائج بنجاح إلى الحافظة!');
+}
+
+
+async function copyAll() {
+
+    if (!currentResults.length) {
+
+        showStatus(
+            "⚠️ استخرج النتائج أولًا.",
+            "error"
+        );
+
+        return;
     }
+
+
+    let output = "";
+
+
+    currentResults.forEach((item, index) => {
+
+        output += `${index + 1}. ${item.page_name || "غير متوفر"}\n`;
+
+        output += `النص: ${
+            item.post_text || "غير متوفر"
+        }\n`;
+
+        output += `الرابط: ${
+            item.post_url || ""
+        }\n`;
+
+        output += "\n-------------------------\n\n";
+
+    });
+
+
+    try {
+
+        await navigator.clipboard.writeText(output);
+
+        showStatus(
+            "✅ تم نسخ جميع النتائج.",
+            "success"
+        );
+
+    } catch (error) {
+
+        showStatus(
+            "❌ تعذر النسخ. حاول مرة أخرى.",
+            "error"
+        );
+
+    }
+
+}
+
 </script>
 
 </body>
