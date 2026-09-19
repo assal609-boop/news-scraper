@@ -2,556 +2,914 @@
 <html lang="ar" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>تفريغ منشورات Facebook</title>
+<meta charset="UTF-8">
 
-    <style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        * {
-            box-sizing: border-box;
-        }
+<title>تفريغ منشورات السوشيال ميديا</title>
 
-        body {
-            margin: 0;
-            font-family: Arial, Tahoma, sans-serif;
-            background: #f4f7fb;
-            color: #1f2937;
-        }
 
-        .container {
-            width: min(1100px, 94%);
-            margin: 40px auto;
-        }
+<style>
 
-        .header {
-            background: linear-gradient(135deg, #1877f2, #0d47a1);
-            color: white;
-            padding: 35px 25px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,.12);
-            margin-bottom: 25px;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        .header h1 {
-            margin: 0 0 10px;
-            font-size: 30px;
-        }
 
-        .header p {
-            margin: 0;
-            opacity: .92;
-            font-size: 16px;
-        }
+body {
 
-        .card {
-            background: white;
-            border-radius: 18px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,.07);
-            margin-bottom: 25px;
-        }
+    margin: 0;
 
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
+    font-family:
+        Arial,
+        Tahoma,
+        sans-serif;
 
-        textarea {
-            width: 100%;
-            min-height: 180px;
-            resize: vertical;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 15px;
-            outline: none;
-            direction: ltr;
-            text-align: left;
-            transition: .2s;
-        }
+    background: #f4f7fb;
 
-        textarea:focus {
-            border-color: #1877f2;
-            box-shadow: 0 0 0 3px rgba(24,119,242,.1);
-        }
+    color: #1f2937;
+}
 
-        .buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
 
-        button {
-            border: 0;
-            border-radius: 10px;
-            padding: 13px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: .2s;
-        }
+.container {
 
-        .extract {
-            background: #1877f2;
-            color: white;
-            flex: 1;
-        }
+    width: min(1100px, 94%);
 
-        .extract:hover {
-            background: #0d65d9;
-        }
+    margin: 40px auto;
+}
 
-        .copy {
-            background: #16a34a;
-            color: white;
-        }
 
-        .copy:hover {
-            background: #12813a;
-        }
+.header {
 
-        button:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
+    background:
+        linear-gradient(
+            135deg,
+            #1877f2,
+            #6c2bd9
+        );
 
-        #status {
-            margin-top: 15px;
-            display: none;
-            padding: 12px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: bold;
-        }
+    color: white;
 
-        .loading {
-            display: block !important;
-            background: #eff6ff;
-            color: #1d4ed8;
-        }
+    padding: 35px 25px;
 
-        .error {
-            display: block !important;
-            background: #fef2f2;
-            color: #b91c1c;
-        }
+    border-radius: 20px;
 
-        .success {
-            display: block !important;
-            background: #f0fdf4;
-            color: #15803d;
-        }
+    text-align: center;
 
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.12);
 
-        .results-header h2 {
-            margin: 0;
-            font-size: 21px;
-        }
+    margin-bottom: 25px;
+}
 
-        #results {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
 
-        .result {
-            border: 1px solid #e5e7eb;
-            border-radius: 15px;
-            padding: 18px;
-            background: #fff;
-        }
+.header h1 {
 
-        .result.ok {
-            border-right: 5px solid #16a34a;
-        }
+    margin: 0 0 10px;
 
-        .result.failed {
-            border-right: 5px solid #dc2626;
-        }
+    font-size: 30px;
+}
 
-        .page {
-            font-size: 19px;
-            font-weight: bold;
-            color: #1877f2;
-            margin-bottom: 10px;
-        }
 
-        .field {
-            margin-top: 10px;
-            line-height: 1.8;
-        }
+.header p {
 
-        .field-title {
-            font-weight: bold;
-            color: #475569;
-        }
+    margin: 0;
 
-        .post-text {
-            white-space: pre-wrap;
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 12px;
-            margin-top: 5px;
-        }
+    opacity: .92;
 
-        .url {
-            direction: ltr;
-            text-align: left;
-            word-break: break-all;
-            background: #f8fafc;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 5px;
-        }
+    font-size: 16px;
+}
 
-        .url a {
-            color: #1877f2;
-            text-decoration: none;
-        }
 
-        .empty {
-            text-align: center;
-            color: #64748b;
-            padding: 30px;
-        }
+.card {
 
-        .number {
-            display: inline-block;
-            background: #1877f2;
-            color: white;
-            min-width: 28px;
-            height: 28px;
-            line-height: 28px;
-            text-align: center;
-            border-radius: 50%;
-            margin-left: 7px;
-            font-size: 13px;
-        }
+    background: white;
 
-        @media(max-width:700px) {
+    border-radius: 18px;
 
-            .container {
-                margin: 20px auto;
-            }
+    padding: 25px;
 
-            .header h1 {
-                font-size: 24px;
-            }
+    box-shadow:
+        0 5px 20px rgba(0,0,0,.07);
 
-            .buttons {
-                flex-direction: column;
-            }
+    margin-bottom: 25px;
+}
 
-            .copy {
-                width: 100%;
-            }
-        }
 
-    </style>
+label {
+
+    display: block;
+
+    font-weight: bold;
+
+    margin-bottom: 10px;
+}
+
+
+textarea {
+
+    width: 100%;
+
+    min-height: 180px;
+
+    resize: vertical;
+
+    border: 2px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    padding: 15px;
+
+    font-size: 15px;
+
+    outline: none;
+
+    direction: ltr;
+
+    text-align: left;
+
+    transition: .2s;
+}
+
+
+textarea:focus {
+
+    border-color: #1877f2;
+
+    box-shadow:
+        0 0 0 3px rgba(24,119,242,.1);
+}
+
+
+.buttons {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 15px;
+}
+
+
+button {
+
+    border: 0;
+
+    border-radius: 10px;
+
+    padding: 13px 20px;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+
+.extract {
+
+    background: #1877f2;
+
+    color: white;
+
+    flex: 1;
+}
+
+
+.extract:hover {
+
+    background: #0d65d9;
+}
+
+
+.copy {
+
+    background: #16a34a;
+
+    color: white;
+}
+
+
+.copy:hover {
+
+    background: #12813a;
+}
+
+
+button:disabled {
+
+    opacity: .6;
+
+    cursor: not-allowed;
+}
+
+
+#status {
+
+    margin-top: 15px;
+
+    display: none;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    font-weight: bold;
+}
+
+
+.loading {
+
+    display: block !important;
+
+    background: #eff6ff;
+
+    color: #1d4ed8;
+}
+
+
+.error {
+
+    display: block !important;
+
+    background: #fef2f2;
+
+    color: #b91c1c;
+}
+
+
+.success {
+
+    display: block !important;
+
+    background: #f0fdf4;
+
+    color: #15803d;
+}
+
+
+.results-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+}
+
+
+.results-header h2 {
+
+    margin: 0;
+
+    font-size: 21px;
+}
+
+
+#results {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+.result {
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 15px;
+
+    padding: 18px;
+
+    background: #fff;
+}
+
+
+.result.ok {
+
+    border-right: 5px solid #16a34a;
+}
+
+
+.result.failed {
+
+    border-right: 5px solid #dc2626;
+}
+
+
+/* اسم الصفحة = الرابط */
+
+.page-link {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-size: 19px;
+
+    font-weight: bold;
+
+    color: #1877f2;
+
+    text-decoration: none;
+
+    margin-bottom: 10px;
+}
+
+
+.page-link:hover {
+
+    text-decoration: underline;
+
+    color: #0d47a1;
+}
+
+
+.platform {
+
+    display: inline-block;
+
+    font-size: 12px;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    background: #f1f5f9;
+
+    color: #475569;
+
+    margin-right: 5px;
+}
+
+
+.field {
+
+    margin-top: 10px;
+
+    line-height: 1.8;
+}
+
+
+.field-title {
+
+    font-weight: bold;
+
+    color: #475569;
+
+    margin-bottom: 5px;
+}
+
+
+.post-text {
+
+    white-space: pre-wrap;
+
+    background: #f8fafc;
+
+    border-radius: 10px;
+
+    padding: 12px;
+
+    line-height: 1.9;
+}
+
+
+.empty {
+
+    text-align: center;
+
+    color: #64748b;
+
+    padding: 30px;
+}
+
+
+.number {
+
+    display: inline-block;
+
+    background: #1877f2;
+
+    color: white;
+
+    min-width: 28px;
+
+    height: 28px;
+
+    line-height: 28px;
+
+    text-align: center;
+
+    border-radius: 50%;
+
+    margin-left: 7px;
+
+    font-size: 13px;
+}
+
+
+@media(max-width:700px) {
+
+    .container {
+
+        margin: 20px auto;
+    }
+
+
+    .header h1 {
+
+        font-size: 24px;
+    }
+
+
+    .buttons {
+
+        flex-direction: column;
+    }
+
+
+    .copy {
+
+        width: 100%;
+    }
+
+}
+
+</style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
 
-    <div class="header">
-        <h1>📘 تفريغ منشورات Facebook</h1>
-        <p>
-            الصق روابط المنشورات وسيتم استخراج اسم الصفحة ونص المنشور تلقائيًا
-        </p>
-    </div>
+
+<div class="header">
+
+    <h1>
+        📱 تفريغ منشورات السوشيال ميديا
+    </h1>
+
+    <p>
+        Facebook • Instagram • X / Twitter
+    </p>
+
+</div>
 
 
-    <div class="card">
 
-        <label>
-            🔗 روابط Facebook
-        </label>
-
-        <textarea
-            id="links"
-            placeholder="ضع كل رابط في سطر منفصل
-
-مثال:
-https://www.facebook.com/RadioHalaJO/posts/...
-https://www.facebook.com/SarahaNews/posts/...
-https://www.facebook.com/reel/..."
-        ></textarea>
+<div class="card">
 
 
-        <div class="buttons">
-
-            <button
-                id="extractBtn"
-                class="extract"
-                onclick="extractPosts()">
-                🔎 استخراج المنشورات
-            </button>
-
-            <button
-                id="copyBtn"
-                class="copy"
-                onclick="copyAll()">
-                📋 نسخ الكل
-            </button>
-
-        </div>
+<label>
+    🔗 روابط المنشورات
+</label>
 
 
-        <div id="status"></div>
+<textarea
+    id="links"
+    placeholder="ضع كل رابط في سطر منفصل
 
-    </div>
+Facebook:
+https://www.facebook.com/...
+
+Instagram:
+https://www.instagram.com/p/...
+
+X:
+https://x.com/.../status/..."
+></textarea>
 
 
-    <div class="card">
 
-        <div class="results-header">
+<div class="buttons">
 
-            <h2>📋 النتائج</h2>
 
-            <span id="count"></span>
+<button
+    id="extractBtn"
+    class="extract"
+    onclick="extractPosts()">
 
-        </div>
+    🔎 استخراج المنشورات
 
-        <div id="results">
+</button>
 
-            <div class="empty">
-                لم يتم استخراج أي منشورات بعد.
-            </div>
 
-        </div>
+<button
+    id="copyBtn"
+    class="copy"
+    onclick="copyAll()">
 
+    📋 نسخ الكل
+
+</button>
+
+
+</div>
+
+
+
+<div id="status"></div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<div class="results-header">
+
+    <h2>
+        📋 النتائج
+    </h2>
+
+    <span id="count"></span>
+
+</div>
+
+
+<div id="results">
+
+    <div class="empty">
+        لم يتم استخراج أي منشورات بعد.
     </div>
 
 </div>
 
 
+</div>
+
+
+</div>
+
+
+
 <script>
+
 
 let currentResults = [];
 
 
-function showStatus(message, type) {
-
-    const status = document.getElementById("status");
-
-    status.className = type;
-    status.textContent = message;
-
-}
-
 
 function escapeHTML(text) {
 
-    if (text === null || text === undefined) {
+    if (
+        text === null ||
+        text === undefined
+    ) {
+
         return "";
+
     }
 
+
     return String(text)
+
         .replace(/&/g, "&amp;")
+
         .replace(/</g, "&lt;")
+
         .replace(/>/g, "&gt;")
+
         .replace(/"/g, "&quot;")
+
         .replace(/'/g, "&#039;");
 
 }
 
 
+
+function showStatus(
+    message,
+    type
+) {
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    status.className = type;
+
+    status.textContent = message;
+
+}
+
+
+
 async function extractPosts() {
 
-    const textarea = document.getElementById("links");
 
-    const button = document.getElementById("extractBtn");
+    const textarea =
+        document.getElementById(
+            "links"
+        );
 
-    const resultsBox = document.getElementById("results");
 
-    const raw = textarea.value.trim();
+    const button =
+        document.getElementById(
+            "extractBtn"
+        );
+
+
+    const resultsBox =
+        document.getElementById(
+            "results"
+        );
+
+
+    const raw =
+        textarea.value.trim();
+
 
 
     if (!raw) {
 
         showStatus(
-            "⚠️ ضع رابط Facebook واحدًا على الأقل.",
+            "⚠️ ضع رابطًا واحدًا على الأقل.",
             "error"
         );
 
         return;
+
     }
 
 
-    const links = raw
+
+    const links =
+        raw
+
         .split(/\r?\n/)
-        .map(x => x.trim())
-        .filter(x => x.length > 0);
+
+        .map(
+            x => x.trim()
+        )
+
+        .filter(
+            x => x.length > 0
+        );
+
 
 
     button.disabled = true;
 
-    button.textContent = "⏳ جاري الاستخراج...";
+    button.textContent =
+        "⏳ جاري الاستخراج...";
+
 
 
     resultsBox.innerHTML = "";
 
+
+
     showStatus(
-        "⏳ جاري الاتصال بـ Facebook واستخراج المنشورات...",
+        "⏳ جاري استخراج المنشورات...",
         "loading"
     );
 
 
+
     try {
 
-        const response = await fetch("/extract", {
 
-            method: "POST",
+        const response =
+            await fetch(
+                "/extract",
+                {
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                    method: "POST",
 
-            body: JSON.stringify({
-                urls: links.join("\n")
-            })
+                    headers: {
 
-        });
+                        "Content-Type":
+                            "application/json"
+
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            urls:
+                                links.join("\n")
+
+                        })
+
+                }
+            );
 
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
 
 
-        if (!response.ok || data.status !== "success") {
+
+        if (
+            !response.ok ||
+            data.status !== "success"
+        ) {
 
             throw new Error(
-                data.message || "حدث خطأ أثناء الاستخراج."
+                data.message ||
+                "حدث خطأ أثناء الاستخراج."
             );
 
         }
 
 
-        currentResults = data.results || [];
+
+        currentResults =
+            data.results || [];
 
 
-        document.getElementById("count").textContent =
+
+        document.getElementById(
+            "count"
+        ).textContent =
             `${currentResults.length} نتيجة`;
 
 
-        if (currentResults.length === 0) {
+
+        if (
+            currentResults.length === 0
+        ) {
 
             resultsBox.innerHTML = `
+
                 <div class="empty">
+
                     لم يتم العثور على نتائج.
+
                 </div>
+
             `;
 
-        } else {
+        }
 
-            currentResults.forEach((item, index) => {
+        else {
 
-                const div = document.createElement("div");
+
+            currentResults.forEach(
+                (item, index) => {
+
+
+                const div =
+                    document.createElement(
+                        "div"
+                    );
+
+
 
                 if (item.success) {
 
-                    div.className = "result ok";
+
+                    div.className =
+                        "result ok";
+
+
 
                     div.innerHTML = `
 
-                        <div class="page">
-                            <span class="number">${index + 1}</span>
-                            ${escapeHTML(item.page_name)}
-                        </div>
+
+                        <a
+
+                            class="page-link"
+
+                            href="${escapeHTML(
+                                item.post_url
+                            )}"
+
+                            target="_blank"
+
+                            rel="noopener noreferrer"
+
+                        >
+
+                            <span class="number">
+
+                                ${index + 1}
+
+                            </span>
+
+
+                            ${escapeHTML(
+                                item.page_name
+                            )}
+
+
+                            <span class="platform">
+
+                                ${escapeHTML(
+                                    item.platform
+                                )}
+
+                            </span>
+
+                        </a>
+
 
 
                         <div class="field">
 
+
                             <div class="field-title">
+
                                 📝 نص المنشور:
+
                             </div>
 
+
+
                             <div class="post-text">
+
                                 ${
                                     escapeHTML(
                                         item.post_text ||
                                         "لا يوجد نص منشور ظاهر."
                                     )
                                 }
-                            </div>
-
-                        </div>
-
-
-                        <div class="field">
-
-                            <div class="field-title">
-                                🔗 الرابط:
-                            </div>
-
-                            <div class="url">
-
-                                <a
-                                    href="${escapeHTML(item.post_url)}"
-                                    target="_blank"
-                                    rel="noopener noreferrer">
-
-                                    ${escapeHTML(item.post_url)}
-
-                                </a>
 
                             </div>
+
 
                         </div>
 
                     `;
 
-                } else {
 
-                    div.className = "result failed";
+                }
+
+                else {
+
+
+                    div.className =
+                        "result failed";
+
 
                     div.innerHTML = `
 
-                        <div class="page">
-                            <span class="number">${index + 1}</span>
+
+                        <div class="page-link">
+
+                            <span class="number">
+
+                                ${index + 1}
+
+                            </span>
+
+
                             ❌ تعذر استخراج المنشور
+
                         </div>
 
+
+
                         <div class="field">
+
                             ${escapeHTML(
                                 item.error ||
                                 "المنشور غير متاح."
                             )}
-                        </div>
-
-                        <div class="field">
-
-                            <div class="field-title">
-                                🔗 الرابط:
-                            </div>
-
-                            <div class="url">
-                                ${escapeHTML(item.post_url)}
-                            </div>
 
                         </div>
+
 
                     `;
 
                 }
 
 
-                resultsBox.appendChild(div);
+
+                resultsBox.appendChild(
+                    div
+                );
+
 
             });
 
         }
+
 
 
         showStatus(
@@ -559,37 +917,61 @@ async function extractPosts() {
             "success"
         );
 
-    } catch (error) {
+
+    }
+
+    catch (error) {
+
 
         console.error(error);
 
+
         currentResults = [];
 
+
         resultsBox.innerHTML = `
+
             <div class="empty">
-                ❌ ${escapeHTML(error.message)}
+
+                ❌ ${escapeHTML(
+                    error.message
+                )}
+
             </div>
+
         `;
+
 
         showStatus(
             "❌ " + error.message,
             "error"
         );
 
-    } finally {
+
+    }
+
+    finally {
+
 
         button.disabled = false;
 
-        button.textContent = "🔎 استخراج المنشورات";
+
+        button.textContent =
+            "🔎 استخراج المنشورات";
+
 
     }
 
 }
 
 
+
 async function copyAll() {
 
-    if (!currentResults.length) {
+
+    if (
+        !currentResults.length
+    ) {
 
         showStatus(
             "⚠️ استخرج النتائج أولًا.",
@@ -597,42 +979,56 @@ async function copyAll() {
         );
 
         return;
+
     }
+
 
 
     let output = "";
 
 
-    currentResults.forEach((item, index) => {
 
-        output += `${index + 1}. ${item.page_name || "غير متوفر"}\n`;
+    currentResults.forEach(
+        (item, index) => {
 
-        output += `النص: ${
-            item.post_text || "غير متوفر"
-        }\n`;
 
-        output += `الرابط: ${
-            item.post_url || ""
-        }\n`;
+        output +=
+            `${index + 1}. ${
+                item.page_name ||
+                "غير متوفر"
+            }\n`;
 
-        output += "\n-------------------------\n\n";
+
+        output +=
+            `النص: ${
+                item.post_text ||
+                "غير متوفر"
+            }\n\n`;
 
     });
 
 
+
     try {
 
-        await navigator.clipboard.writeText(output);
+
+        await navigator.clipboard
+            .writeText(output);
+
 
         showStatus(
-            "✅ تم نسخ جميع النتائج.",
+            "✅ تم نسخ النتائج.",
             "success"
         );
 
-    } catch (error) {
+
+    }
+
+    catch (error) {
+
 
         showStatus(
-            "❌ تعذر النسخ. حاول مرة أخرى.",
+            "❌ تعذر النسخ.",
             "error"
         );
 
@@ -640,7 +1036,10 @@ async function copyAll() {
 
 }
 
+
 </script>
 
+
 </body>
+
 </html>
