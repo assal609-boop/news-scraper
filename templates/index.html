@@ -63,8 +63,7 @@
 <script>
     let currentResults = [];
 
-    // خريطة المواقع الإخبارية المشهورة لضمان أقصى دقة
-    const pageMapping = [
+    const knownPages = [
         { keys: ['alfaisalyscjo', 'faisaly'], name: 'موقع النادي الفيصلي الأردني' },
         { keys: ['sarahanews', 'saraha'], name: 'موقع صراحة نيوز الإخباري' },
         { keys: ['radiohala', 'hala'], name: 'موقع راديو هالة الإخباري' },
@@ -74,29 +73,87 @@
         { keys: ['alrabta'], name: 'موقع الرابطة نيوز' }
     ];
 
-    function extractPageName(url) {
-        const cleanUrl = url.toLowerCase();
-        
-        // 1. مطابقة اسم الصفحة من القائمة
-        for (let item of pageMapping) {
-            if (item.keys.some(k => cleanUrl.includes(k))) {
+    function cleanPageName(url, fetchedTitle) {
+        const lowerUrl = url.toLowerCase();
+
+        // 1. التثبت من القائمة المعروفة
+        for (let item of knownPages) {
+            if (item.keys.some(k => lowerUrl.includes(k))) {
                 return item.name;
             }
         }
 
-        // 2. استخراج اسم الحساب من مسار رابط فيسبوك إذا كانت الصفحة جديدة
+        // 2. محاولة جلب الاسم من العنوان الجاهز إذا توفر
+        if (fetchedTitle && !fetchedTitle.toLowerCase().includes('share') && !fetchedTitle.includes('Facebook')) {
+            let parts = fetchedTitle.split('|');
+            if (parts.length > 1) return "موقع " + parts[parts.length - 1].trim();
+            parts = fetchedTitle.split('-');
+            if (parts.length > 1) return "موقع " + parts[parts.length - 1].trim();
+        }
+
+        // 3. تحليل مسار URL وتجاهل كلمات النظام مثل share أو posts
         try {
-            const match = url.match(/facebook\.com\/([^\/\?#]+)/);
-            if (match && match[1]) {
-                let slug = match[1].replace(/[\._\-]/g, ' ').replace('profile.php', '');
-                if (slug.trim().length > 0 && slug.toLowerCase() !== 'share') {
-                    let words = slug.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1));
-                    return "موقع " + words.join(' ');
+            const urlObj = new URL(url);
+            const pathSegments = urlObj.pathname.split('/').filter(p => p.length > 0);
+            for (let segment of pathSegments) {
+                const segLower = segment.toLowerCase();
+                if (!['share', 'posts', 'permalink.php', 'story.php', 'groups', 'pfbid'].some(b => segLower.includes(b))) {
+                    let cleaned = segment.replace(/[\._\-]/g, ' ').replace(/profile\.php/g, '');
+                    if (cleaned.trim().length > 0) {
+                        let words = cleaned.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1));
+                        return "موقع " + words.join(' ');
+                    }
                 }
             }
         } catch (e) {}
 
         return "موقع إخباري";
+    }
+
+    async function fetchPostData(url) {
+        let pageName = "موقع إخباري";
+        let postText = "";
+
+        try {
+            const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
+
+            if (data.status === 'success' && data.data) {
+                const rawTitle = data.data.title || "";
+                const rawDesc = data.data.description || "";
+                const publisher = data.data.publisher || "";
+
+                // تنقية الاسم من البيانات المسترجعة
+                pageName = cleanPageName(url, publisher || rawTitle);
+
+                // تنقية نص المنشور
+                let candidateText = rawDesc || rawTitle;
+                const badPhrases = ["تسجيل الدخول", "Log in", "Explore the things", "يمكنك رؤية المنشورات", "Sign Up", "SHARE", "Share"];
+                
+                if (candidateText && !badPhrases.some(p => candidateText.includes(p))) {
+                    postText = candidateText;
+                }
+            }
+        } catch (e) {}
+
+        if (!postText) {
+            pageName = cleanPageName(url, "");
+            if (pageName.includes("الفيصلي")) {
+                postText = "تغطية إخبارية وبيان رسمي صادر عن إدارة النادي الفيصلي الأردني.";
+            } else if (pageName.includes("صراحة")) {
+                postText = "متابعة صحفية وتغطية إخبارية عاجلة نقلاً عن وكالة صراحة نيوز.";
+            } else if (pageName.includes("هالة")) {
+                postText = "موجز إخباري وتغطية حصرية صادر عن راديو هالة الإخباري.";
+            } else {
+                postText = "تغطية صحفية ومتابعة إخبارية خاصة مرفقة عبر الرابط الرسمي للصفحة.";
+            }
+        }
+
+        return {
+            page_name: pageName,
+            post_text: postText,
+            post_url: url
+        };
     }
 
     async function extractUrls() {
@@ -114,42 +171,8 @@
         currentResults = [];
 
         for (let url of urlsList) {
-            const pageName = extractPageName(url);
-            let postText = "";
-
-            try {
-                // محاولة جلب النص عبر Microlink API
-                const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
-                const data = await response.json();
-
-                if (data.status === 'success' && data.data) {
-                    let text = data.data.description || data.data.title || "";
-                    const badPhrases = ["تسجيل الدخول", "Log in", "Explore the things", "يمكنك رؤية المنشورات", "Sign Up", "SHARE", "Share"];
-                    
-                    if (text && !badPhrases.some(p => text.includes(p))) {
-                        postText = text;
-                    }
-                }
-            } catch (e) {}
-
-            // صياغة نص متناسق في حال حظر فيسبوك للمحتوى الداخلي
-            if (!postText) {
-                if (pageName.includes("الفيصلي")) {
-                    postText = "تغطية إخبارية وبيان رسمي صادر عن إدارة النادي الفيصلي الأردني.";
-                } else if (pageName.includes("صراحة")) {
-                    postText = "متابعة صحفية وتغطية إخبارية عاجلة نقلاً عن وكالة صراحة نيوز.";
-                } else if (pageName.includes("هالة")) {
-                    postText = "موجز إخباري وتغطية حصرية صادر عن راديو هالة الإخباري.";
-                } else {
-                    postText = "تغطية صحفية ومتابعة إخبارية خاصة مرفقة عبر الرابط الرسمي للصفحة.";
-                }
-            }
-
-            currentResults.push({
-                page_name: pageName,
-                post_text: postText,
-                post_url: url
-            });
+            const item = await fetchPostData(url);
+            currentResults.push(item);
         }
 
         renderResults();
