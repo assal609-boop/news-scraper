@@ -22,7 +22,6 @@ def extract():
     
     results = []
     
-    # التظاهر بمتصفح حقيقي لتجاوز حظر فيسبوك
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept-Language': 'ar,en-US;q=0.9,en;q=0.8'
@@ -32,12 +31,16 @@ def extract():
         page_name = ""
         post_text = ""
         
+        # تحويل رابط فيسبوك إلى النسخة الخفيفة mbasic لقراءة النص الفعلي مباشرة بدون حظر
+        target_url = url
+        if "facebook.com" in url or "fb.watch" in url:
+            target_url = url.replace("www.facebook.com", "mbasic.facebook.com").replace("web.facebook.com", "mbasic.facebook.com")
+
         try:
-            # طلب فتح رابط المنشور من فيسبوك
-            res = requests.get(url, headers=headers, timeout=8)
+            res = requests.get(target_url, headers=headers, timeout=10)
             soup = BeautifulSoup(res.text, 'html.parser')
             
-            # 1. جلب اسم الصفحة وعنوان المنشور من الميتا داتا فيسبوك
+            # 1. محاولة جلب الميتا داتا الرسمية للمنشور
             og_title = soup.find('meta', property='og:title')
             og_desc = soup.find('meta', property='og:description')
             
@@ -48,24 +51,37 @@ def extract():
             if og_desc and og_desc.get('content'):
                 post_text = og_desc['content']
 
-        except Exception:
+            # 2. في حال لم تجلب الميتا داتا النص، نقوم بقراءة الفقرات والنصوص الفعلية من الصفحة مباشرة
+            if not post_text or post_text.lower() in ['facebook', 'log in']:
+                # البحث عن النصوص داخل وسم الملاحظات والمنشورات p أو article
+                paragraphs = soup.find_all(['p', 'article', 'div'])
+                candidate_texts = []
+                for p in paragraphs:
+                    text = p.get_text(strip=True)
+                    if len(text) > 30 and "Facebook" not in text and "تسجيل الدخول" not in text:
+                        candidate_texts.append(text)
+                
+                if candidate_texts:
+                    post_text = candidate_texts[0]
+
+        except Exception as e:
             pass
 
-        # في حال عدم التمكن من قراءة الاسم تلقائياً، استخراجه من الرابط
-        if not page_name or page_name.lower() in ['facebook', 'home']:
+        # 3. إذا لم يجد اسم الصفحة من الصفحة، يستخرجه من الرابط تلقائياً
+        if not page_name or page_name.lower() in ['facebook', 'home', 'log in']:
             match = re.search(r'facebook\.com/([^/?#]+)', url)
             if match:
                 extracted = match.group(1)
-                if extracted not in ['posts', 'reels', 'videos', 'photo', 'watch', 'groups']:
+                if extracted not in ['posts', 'reels', 'videos', 'photo', 'watch', 'groups', 'story']:
                     page_name = extracted.replace('.', ' ').replace('_', ' ').title()
                 else:
-                    page_name = "موقع إخباري"
+                    page_name = "صفحة إخبارية"
             else:
-                page_name = "موقع إخباري"
+                page_name = "صفحة إخبارية"
 
-        # إذا تعذر جلب النص الحقيقي بسبب قيود فيسبوك للخصوصية
-        if not post_text:
-            post_text = "حسبي الله ونعم الوكيل فيك ربنا ينتقم منك اشد انتقـ.ـام اللهم آمين تحبس اردني شهر"
+        # إذا كان المنشور يحتاج تسجيل دخول خاص جداً يظهر تنبيه برمجي ديناميكي
+        if not post_text or post_text.lower() in ['facebook', 'log in']:
+            post_text = "تعذر قراءة النص المباشر للمنشور بسبب قيود الخصوصية على هذا الرابط المحدد."
 
         results.append({
             'page_name': page_name,
