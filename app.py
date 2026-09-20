@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 import requests
 from flask import Flask, jsonify, render_template, request
 
+print("APP FILE LOADED")
+
 app = Flask(__name__)
 
 REFETCHER_URL = "https://api.refetcher.com/"
@@ -184,8 +186,10 @@ def normalize_results(data, original_urls):
             items = data["items"]
         else:
             items = [data]
+
     elif isinstance(data, list):
         items = data
+
     else:
         items = []
 
@@ -309,6 +313,7 @@ def extract():
 
         try:
             response_data = response.json()
+
         except ValueError:
             return jsonify(
                 {
@@ -340,11 +345,13 @@ def extract():
     except requests.exceptions.HTTPError:
         try:
             error_data = response.json()
+
             error_message = (
                 error_data.get("error")
                 or error_data.get("message")
                 or "حدث خطأ من خدمة الاستخراج."
             )
+
         except Exception:
             error_message = (
                 "حدث خطأ من خدمة الاستخراج. "
@@ -377,6 +384,7 @@ def extract():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+
     app.run(
         host="0.0.0.0",
         port=port
