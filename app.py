@@ -1,5 +1,4 @@
 import os
-import time
 import requests
 
 from flask import Flask, render_template, request, jsonify
@@ -27,42 +26,23 @@ def detect_platform(url):
 
 
 def error_message(data, fallback):
-    if isinstance(data, dict):
+    if not isinstance(data, dict):
+        return fallback
 
-        error = data.get("error")
+    error = data.get("error")
 
-        if isinstance(error, dict):
-            return str(
-                error.get("message")
-                or error.get("category")
-                or fallback
-            )
+    if isinstance(error, dict):
+        return str(
+            error.get("message")
+            or error.get("category")
+            or fallback
+        )
 
-        if error:
-            return str(error)
+    if error:
+        return str(error)
 
-        results = data.get("results")
-
-        if isinstance(results, list) and results:
-
-            first = results[0]
-
-            if isinstance(first, dict):
-
-                result_error = first.get("error")
-
-                if isinstance(result_error, dict):
-                    return str(
-                        result_error.get("message")
-                        or result_error.get("category")
-                        or fallback
-                    )
-
-                if result_error:
-                    return str(result_error)
-
-        if data.get("message"):
-            return str(data["message"])
+    if data.get("message"):
+        return str(data["message"])
 
     return fallback
 
@@ -128,7 +108,7 @@ def extract_one(url):
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error": "REFETCHER_API_KEY غير موجود في Render."
+            "error": "REFETCHER_API_KEY غير موجود في إعدادات السيرفر."
         }
 
     headers = {
@@ -137,133 +117,74 @@ def extract_one(url):
         "Accept": "application/json"
     }
 
-    # نرسل الرابط كما أدخله المستخدم
     payload = {
         "url": url
     }
 
-    # نحاول أكثر من مرة فقط عند الأخطاء المؤقتة
-    max_attempts = 3
+    try:
 
-    last_data = None
-    last_response = None
+        response = requests.post(
+            REFETCHER_URL,
+            headers=headers,
+            json=payload,
+            timeout=90
+        )
 
-    for attempt in range(max_attempts):
-
-        try:
-            response = requests.post(
-                REFETCHER_URL,
-                headers=headers,
-                json=payload,
-                timeout=90
-            )
-
-            last_response = response
-
-        except requests.RequestException:
-
-            if attempt < max_attempts - 1:
-                time.sleep(2)
-                continue
-
-            return {
-                "page_name": "تعذر الاتصال",
-                "post_text": "",
-                "post_url": url,
-                "platform": platform,
-                "error": "تعذر الاتصال بخدمة الاستخراج."
-            }
-
-        try:
-            data = response.json()
-            last_data = data
-
-        except ValueError:
-
-            if (
-                attempt < max_attempts - 1
-                and response.status_code in (429, 500, 502, 503, 504)
-            ):
-                time.sleep(2)
-                continue
-
-            return {
-                "page_name": "خطأ من خدمة الاستخراج",
-                "post_text": "",
-                "post_url": url,
-                "platform": platform,
-                "error": (
-                    "خدمة الاستخراج أعادت استجابة غير صالحة. "
-                    "رمز الاستجابة: "
-                    + str(response.status_code)
-                )
-            }
-
-        # نجاح HTTP
-        if response.ok:
-            break
-
-        # الأخطاء المؤقتة فقط يعاد طلبها
-        if response.status_code in (429, 500, 502, 503, 504):
-
-            if attempt < max_attempts - 1:
-
-                retry_after = response.headers.get("Retry-After")
-
-                try:
-                    wait_seconds = min(
-                        int(retry_after),
-                        10
-                    )
-                except (TypeError, ValueError):
-                    wait_seconds = 2
-
-                time.sleep(wait_seconds)
-                continue
-
-        # خطأ نهائي
+    except requests.RequestException:
         return {
-            "page_name": "تعذر استخراج الرابط",
+            "page_name": "تعذر الاتصال",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error": error_message(
-                data,
-                "فشل استخراج الرابط."
-            )
+            "error": "تعذر الاتصال بخدمة الاستخراج."
         }
 
-    data = last_data
+    # نحاول قراءة JSON حتى لو كان HTTP status غير 200
+    try:
+        data = response.json()
 
-    if not isinstance(data, dict):
+    except ValueError:
+
         return {
-            "page_name": "خطأ في البيانات",
+            "page_name": "خطأ من خدمة الاستخراج",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error": "صيغة النتيجة غير صحيحة."
+            "error": (
+                "خدمة الاستخراج أعادت استجابة غير صالحة. "
+                "رمز الاستجابة: "
+                + str(response.status_code)
+            )
         }
 
-    # Refetcher يعيد النتائج داخل results
+    # ------------------------------------------------
+    # Refetcher يرجع النتائج داخل results
+    # حتى في حالة وجود فشل لبعض الروابط
+    # ------------------------------------------------
+
     results = data.get("results")
 
     if isinstance(results, list):
 
-        if len(results) == 0:
+        if not results:
+
             return {
                 "page_name": "لا توجد نتيجة",
                 "post_text": "",
                 "post_url": url,
                 "platform": platform,
-                "error": "لم تُرجع الخدمة بيانات لهذا الرابط."
+                "error": "لم تُرجع خدمة الاستخراج نتيجة لهذا الرابط."
             }
 
         result = results[0]
 
     else:
+
+        # بعض الاستجابات قد تكون مباشرة
         result = data
 
     if not isinstance(result, dict):
+
         return {
             "page_name": "خطأ في البيانات",
             "post_text": "",
@@ -272,15 +193,23 @@ def extract_one(url):
             "error": "صيغة النتيجة غير صحيحة."
         }
 
-    # إذا كانت النتيجة ناجحة
+    # -----------------------------------------------
+    # النجاح
+    # -----------------------------------------------
+
     if result.get("success") is True:
+
         return make_result(
             result,
             url
         )
 
-    # إذا كانت النتيجة فاشلة
+    # -----------------------------------------------
+    # الفشل
+    # -----------------------------------------------
+
     if result.get("success") is False:
+
         return {
             "page_name": "تعذر استخراج المنشور",
             "post_text": "",
@@ -292,13 +221,17 @@ def extract_one(url):
             )
         }
 
-    # في حال كانت الاستجابة مباشرة بدون success
+    # -----------------------------------------------
+    # في حال رجعت البيانات بدون success
+    # -----------------------------------------------
+
     if (
         result.get("post")
         or result.get("author")
         or result.get("caption")
         or result.get("text")
     ):
+
         return make_result(
             result,
             url
@@ -331,6 +264,7 @@ def extract():
         )
 
         if not isinstance(data, dict):
+
             return jsonify({
                 "success": False,
                 "error": "بيانات الطلب غير صحيحة."
@@ -339,6 +273,7 @@ def extract():
         urls = data.get("urls")
 
         if not isinstance(urls, list):
+
             return jsonify({
                 "success": False,
                 "error": "لم يتم إرسال قائمة الروابط."
@@ -351,21 +286,24 @@ def extract():
         ]
 
         if not urls:
+
             return jsonify({
                 "success": False,
                 "error": "أدخل رابطًا واحدًا على الأقل."
             }), 400
 
         if len(urls) > 50:
+
             return jsonify({
                 "success": False,
                 "error": "الحد الأقصى 50 رابطًا."
             }), 400
 
         if not REFETCHER_API_KEY:
+
             return jsonify({
                 "success": False,
-                "error": "REFETCHER_API_KEY غير موجود في Render."
+                "error": "REFETCHER_API_KEY غير موجود في إعدادات السيرفر."
             }), 500
 
         results = []
