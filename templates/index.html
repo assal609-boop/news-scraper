@@ -1,68 +1,107 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>📱 تفريغ منشورات السوشيال ميديا</title>
+    <title>تفريغ منشورات السوشيال ميديا</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            min-height: 100vh;
             font-family: Arial, Tahoma, sans-serif;
-            background: linear-gradient(135deg, #f7f8ff, #eef1ff);
+            background: #f6f7fb;
             color: #222;
         }
 
+        /* الشريط العلوي */
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e7e8ef;
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: bold;
+            color: #3f46b8;
+            white-space: nowrap;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links button {
+            border: none;
+            background: transparent;
+            color: #555;
+            padding: 9px 14px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .nav-links button:hover,
+        .nav-links button.active {
+            background: #eef0ff;
+            color: #3f46b8;
+        }
+
+        /* الصفحة */
         .container {
-            width: min(1100px, 94%);
-            margin: 40px auto;
+            width: min(1050px, 92%);
+            margin: 35px auto;
         }
 
-        .header {
-            background: white;
-            border-radius: 24px;
-            padding: 30px 25px;
+        .hero {
             text-align: center;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
-            margin-bottom: 22px;
+            margin-bottom: 25px;
         }
 
-        .header-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
+        .hero-icon {
+            font-size: 42px;
+            margin-bottom: 8px;
         }
 
-        h1 {
-            margin: 0 0 10px;
+        .hero h1 {
+            margin: 0 0 8px;
             font-size: 30px;
             color: #252a5c;
         }
 
-        .subtitle {
+        .hero p {
             margin: 0;
             color: #777;
             font-size: 15px;
         }
 
-        .card {
+        /* صندوق الإدخال */
+        .input-card {
             background: white;
-            border-radius: 24px;
-            padding: 25px;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
-            margin-bottom: 22px;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 5px 25px rgba(30, 35, 90, 0.07);
+            border: 1px solid #ececf3;
         }
 
-        label {
-            display: block;
+        .input-title {
             font-weight: bold;
             margin-bottom: 10px;
             color: #333;
@@ -70,96 +109,136 @@
 
         textarea {
             width: 100%;
-            min-height: 190px;
+            height: 125px;
             resize: vertical;
-            border: 2px solid #e3e5f2;
-            border-radius: 16px;
-            padding: 17px;
-            font-size: 15px;
+            border: 1px solid #dfe1ec;
+            border-radius: 12px;
+            padding: 13px;
             font-family: inherit;
+            font-size: 14px;
             outline: none;
-            transition: 0.2s;
+            background: #fafbff;
             direction: ltr;
             text-align: left;
         }
 
         textarea:focus {
-            border-color: #656bd6;
-            box-shadow: 0 0 0 4px rgba(101, 107, 214, 0.1);
+            border-color: #6067d9;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(96, 103, 217, 0.08);
         }
 
-        .controls {
+        /* أدوات الإدخال */
+        .tools {
+            margin-top: 12px;
             display: flex;
-            gap: 12px;
-            margin-top: 16px;
+            align-items: center;
+            gap: 9px;
             flex-wrap: wrap;
         }
 
-        button {
-            border: none;
-            border-radius: 14px;
-            padding: 14px 25px;
-            font-size: 16px;
-            font-weight: bold;
+        .filter {
+            border: 1px solid #dfe1ec;
+            background: white;
+            border-radius: 10px;
+            padding: 10px 12px;
             font-family: inherit;
+            font-size: 14px;
+            color: #444;
             cursor: pointer;
-            background: #5c63d8;
-            color: white;
-            transition: 0.2s;
+        }
+
+        .tool-button {
+            border: 1px solid #dfe1ec;
+            background: white;
+            color: #444;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .tool-button:hover {
+            background: #f1f2ff;
+            border-color: #cdd0f5;
+        }
+
+        .count {
+            color: #777;
+            font-size: 13px;
+            margin-right: auto;
+        }
+
+        .extract-button {
             width: 100%;
+            margin-top: 13px;
+            border: none;
+            background: #5b62d6;
+            color: white;
+            padding: 13px;
+            border-radius: 11px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
         }
 
-        button:hover {
+        .extract-button:hover {
             background: #4d54c5;
-            transform: translateY(-1px);
         }
 
-        button:disabled {
+        .extract-button:disabled {
             opacity: 0.65;
             cursor: not-allowed;
-            transform: none;
         }
 
+        /* الحالة */
         .status {
             display: none;
-            margin-top: 18px;
-            padding: 14px;
-            border-radius: 14px;
+            margin-top: 12px;
+            padding: 11px;
+            border-radius: 10px;
             text-align: center;
-            background: #f0f2ff;
-            color: #454a9a;
+            font-size: 14px;
         }
 
+        /* النتائج */
         .results-card {
             display: none;
+            background: white;
+            border-radius: 18px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 5px 25px rgba(30, 35, 90, 0.06);
+            border: 1px solid #ececf3;
         }
 
-        .results-title {
-            margin-bottom: 18px;
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
         }
 
-        .results-title h2 {
+        .results-header h2 {
             margin: 0;
             color: #252a5c;
-            font-size: 21px;
+            font-size: 19px;
         }
 
         .result-item {
-            border: 1px solid #e8e9f2;
-            border-radius: 17px;
-            padding: 18px;
-            margin-bottom: 12px;
+            border: 1px solid #e8e9f0;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
             background: #fff;
-            transition: 0.2s;
-        }
-
-        .result-item:hover {
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
         }
 
         .result-line {
             line-height: 1.9;
-            font-size: 16px;
+            font-size: 15px;
             word-break: break-word;
         }
 
@@ -179,371 +258,682 @@
         }
 
         .error-message {
-            margin-top: 10px;
+            margin-top: 8px;
             color: #b42318;
             background: #fff1f0;
-            padding: 10px 12px;
-            border-radius: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
             font-size: 13px;
         }
 
         .empty {
             text-align: center;
-            padding: 35px 15px;
             color: #777;
+            padding: 25px;
+        }
+
+        /* النوافذ */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 24, 50, 0.45);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: white;
+            width: min(480px, 100%);
+            border-radius: 18px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-box h2 {
+            margin-top: 0;
+            color: #252a5c;
+        }
+
+        .modal-box p {
+            color: #666;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .close-button {
+            border: none;
+            background: #5b62d6;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-family: inherit;
+            cursor: pointer;
         }
 
         .footer {
             text-align: center;
             color: #999;
-            font-size: 13px;
-            padding: 10px 0 30px;
+            font-size: 12px;
+            padding: 25px 0;
         }
 
-        @media (max-width: 600px) {
+        /* الهاتف */
+        @media (max-width: 650px) {
+
+            .navbar {
+                padding: 12px 4%;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-links button {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
 
             .container {
                 width: 94%;
-                margin: 20px auto;
+                margin: 25px auto;
             }
 
-            .header {
-                padding: 24px 17px;
-                border-radius: 20px;
-            }
-
-            h1 {
+            .hero h1 {
                 font-size: 24px;
             }
 
-            .card {
-                padding: 18px;
-                border-radius: 20px;
+            .hero-icon {
+                font-size: 35px;
+            }
+
+            .input-card,
+            .results-card {
+                padding: 15px;
             }
 
             textarea {
-                min-height: 160px;
+                height: 115px;
             }
 
-            .result-line {
-                font-size: 15px;
+            .tools {
+                align-items: stretch;
             }
 
+            .filter,
+            .tool-button {
+                flex: 1;
+            }
+
+            .count {
+                width: 100%;
+                margin-right: 0;
+                text-align: center;
+            }
         }
-
     </style>
 </head>
 
 <body>
 
-<div class="container">
+    <!-- الشريط العلوي -->
+    <nav class="navbar">
 
-    <div class="header">
-
-        <div class="header-icon">
-            📱
+        <div class="brand">
+            📱 تفريغ السوشيال ميديا
         </div>
 
-        <h1>
-            تفريغ منشورات السوشيال ميديا
-        </h1>
+        <div class="nav-links">
 
-        <p class="subtitle">
-            استخرج اسم الحساب ونص المنشور من Facebook وInstagram وX
-        </p>
+            <button class="active" onclick="goHome()">
+                🏠 الصفحة الرئيسية
+            </button>
 
-    </div>
+            <button onclick="openAbout()">
+                ℹ️ عن الموقع
+            </button>
 
-
-    <div class="card">
-
-        <label for="urls">
-            🔗 أدخل الروابط
-        </label>
-
-        <textarea
-            id="urls"
-            placeholder="ضع كل رابط في سطر منفصل...
-
-مثال:
-https://www.facebook.com/...
-https://www.instagram.com/...
-https://x.com/..."></textarea>
-
-
-        <div class="controls">
-
-            <button id="extractButton" onclick="extractPosts()">
-                🚀 استخراج المنشورات
+            <button onclick="openContact()">
+                📞 تواصل معنا
             </button>
 
         </div>
 
-
-        <div id="status" class="status"></div>
-
-    </div>
+    </nav>
 
 
-    <div id="resultsCard" class="card results-card">
+    <main class="container">
 
-        <div class="results-title">
+        <!-- العنوان -->
+        <section class="hero">
 
-            <h2>
-                📋 النتائج
-            </h2>
+            <div class="hero-icon">
+                📱
+            </div>
+
+            <h1>
+                تفريغ منشورات السوشيال ميديا
+            </h1>
+
+            <p>
+                استخرج اسم الحساب ونص المنشور من Facebook وInstagram وX
+            </p>
+
+        </section>
+
+
+        <!-- الإدخال -->
+        <section class="input-card">
+
+            <div class="input-title">
+                🔗 أدخل روابط المنشورات
+            </div>
+
+            <textarea
+                id="urls"
+                placeholder="ضع الروابط هنا، كل رابط في سطر منفصل..."></textarea>
+
+
+            <!-- أدوات -->
+            <div class="tools">
+
+                <select id="platformFilter" class="filter">
+                    <option value="all">🌐 كل المنصات</option>
+                    <option value="facebook">🔵 Facebook</option>
+                    <option value="instagram">🟣 Instagram</option>
+                    <option value="x">⚫ X</option>
+                </select>
+
+
+                <button
+                    class="tool-button"
+                    onclick="copyLinks()">
+                    📋 نسخ
+                </button>
+
+
+                <span id="linkCount" class="count">
+                    عدد الروابط: 0
+                </span>
+
+            </div>
+
+
+            <button
+                id="extractButton"
+                class="extract-button"
+                onclick="extractPosts()">
+                🚀 استخراج المنشورات
+            </button>
+
+
+            <div id="status" class="status"></div>
+
+        </section>
+
+
+        <!-- النتائج -->
+        <section id="resultsCard" class="results-card">
+
+            <div class="results-header">
+
+                <h2>
+                    📋 النتائج
+                </h2>
+
+                <span id="resultCount" class="count"></span>
+
+            </div>
+
+            <div id="results"></div>
+
+        </section>
+
+
+        <div class="footer">
+            أداة تفريغ المنشورات من منصات التواصل الاجتماعي
+        </div>
+
+    </main>
+
+
+    <!-- نافذة عن الموقع -->
+    <div id="aboutModal" class="modal">
+
+        <div class="modal-box">
+
+            <h2>ℹ️ عن الموقع</h2>
+
+            <p>
+                أداة تساعدك على استخراج اسم الحساب ونص المنشور
+                من روابط منشورات منصات التواصل الاجتماعي المدعومة.
+            </p>
+
+            <button
+                class="close-button"
+                onclick="closeModal('aboutModal')">
+                إغلاق
+            </button>
 
         </div>
 
-        <div id="results"></div>
-
     </div>
 
 
-    <div class="footer">
-        أداة تفريغ المنشورات من منصات التواصل الاجتماعي
-    </div>
+    <!-- نافذة تواصل معنا -->
+    <div id="contactModal" class="modal">
 
-</div>
+        <div class="modal-box">
+
+            <h2>📞 تواصل معنا</h2>
+
+            <p>
+                لأي استفسار أو ملاحظة حول الموقع،
+                يمكنك التواصل مع فريق الموقع.
+            </p>
+
+            <button
+                class="close-button"
+                onclick="closeModal('contactModal')">
+                إغلاق
+            </button>
+
+        </div>
+
+    </div>
 
 
 <script>
 
-const urlsInput = document.getElementById("urls");
-
-const button = document.getElementById("extractButton");
-
-const statusBox = document.getElementById("status");
-
-const resultsCard = document.getElementById("resultsCard");
-
-const resultsBox = document.getElementById("results");
-
-
-function escapeHTML(value) {
-
-    if (value === null || value === undefined) {
-        return "";
-    }
-
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
+    const urlsInput = document.getElementById("urls");
+    const linkCount = document.getElementById("linkCount");
+    const platformFilter = document.getElementById("platformFilter");
+    const button = document.getElementById("extractButton");
+    const statusBox = document.getElementById("status");
+    const resultsCard = document.getElementById("resultsCard");
+    const resultsBox = document.getElementById("results");
+    const resultCount = document.getElementById("resultCount");
 
 
-function safeURL(url) {
+    /* حساب عدد الروابط */
+    function updateLinkCount() {
 
-    if (!url) {
-        return "#";
-    }
+        const urls = urlsInput.value
+            .split(/\r?\n/)
+            .map(x => x.trim())
+            .filter(Boolean);
 
-    const value = String(url).trim();
-
-    if (
-        value.startsWith("https://") ||
-        value.startsWith("http://")
-    ) {
-        return value;
-    }
-
-    return "#";
-}
-
-
-async function extractPosts() {
-
-    const rawText = urlsInput.value.trim();
-
-    if (!rawText) {
-
-        showStatus(
-            "⚠️ أدخل رابطًا واحدًا على الأقل.",
-            true
-        );
-
-        return;
+        linkCount.textContent =
+            "عدد الروابط: " + urls.length;
     }
 
 
-    const urls = rawText
-        .split(/\r?\n/)
-        .map(url => url.trim())
-        .filter(Boolean);
+    urlsInput.addEventListener("input", updateLinkCount);
 
 
-    button.disabled = true;
+    /* نسخ الروابط */
+    async function copyLinks() {
 
-    button.textContent = "⏳ جاري الاستخراج...";
+        const text = urlsInput.value.trim();
 
+        if (!text) {
 
-    showStatus(
-        "⏳ جاري استخراج المنشورات، يرجى الانتظار..."
-    );
-
-
-    resultsCard.style.display = "none";
-
-    resultsBox.innerHTML = "";
-
-
-    try {
-
-        const response = await fetch("/extract", {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                urls: urls
-            })
-
-        });
-
-
-        const data = await response.json();
-
-
-        if (!response.ok || !data.success) {
-
-            throw new Error(
-                data.error ||
-                "حدث خطأ أثناء استخراج المنشورات."
+            showStatus(
+                "⚠️ لا يوجد روابط لنسخها.",
+                true
             );
+
+            return;
+        }
+
+        try {
+
+            await navigator.clipboard.writeText(text);
+
+            showStatus(
+                "✅ تم نسخ الروابط.",
+                false
+            );
+
+            setTimeout(hideStatus, 1800);
+
+        } catch (error) {
+
+            urlsInput.select();
+
+            document.execCommand("copy");
+
+            showStatus(
+                "✅ تم نسخ الروابط.",
+                false
+            );
+
+            setTimeout(hideStatus, 1800);
+        }
+    }
+
+
+    /* استخراج المنشورات */
+    async function extractPosts() {
+
+        const rawText = urlsInput.value.trim();
+
+        if (!rawText) {
+
+            showStatus(
+                "⚠️ أدخل رابطًا واحدًا على الأقل.",
+                true
+            );
+
+            return;
         }
 
 
-        renderResults(data.results || []);
+        let urls = rawText
+            .split(/\r?\n/)
+            .map(url => url.trim())
+            .filter(Boolean);
 
-        hideStatus();
+
+        const filter = platformFilter.value;
 
 
-    } catch (error) {
+        if (filter !== "all") {
+
+            urls = urls.filter(url => {
+
+                const lower = url.toLowerCase();
+
+                if (filter === "facebook") {
+                    return lower.includes("facebook.com") ||
+                           lower.includes("fb.com");
+                }
+
+                if (filter === "instagram") {
+                    return lower.includes("instagram.com");
+                }
+
+                if (filter === "x") {
+                    return lower.includes("x.com") ||
+                           lower.includes("twitter.com");
+                }
+
+                return true;
+            });
+        }
+
+
+        if (!urls.length) {
+
+            showStatus(
+                "⚠️ لا توجد روابط تطابق المنصة المختارة.",
+                true
+            );
+
+            return;
+        }
+
+
+        button.disabled = true;
+        button.textContent = "⏳ جاري الاستخراج...";
+
 
         showStatus(
-            "❌ " +
-            (error.message ||
-            "حدث خطأ غير متوقع."),
-            true
+            "⏳ جاري استخراج المنشورات..."
         );
 
-    } finally {
 
-        button.disabled = false;
+        resultsCard.style.display = "none";
+        resultsBox.innerHTML = "";
 
-        button.textContent =
-            "🚀 استخراج المنشورات";
 
+        try {
+
+            const response = await fetch("/extract", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    urls: urls
+                })
+
+            });
+
+
+            const data = await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "حدث خطأ أثناء استخراج المنشورات."
+                );
+            }
+
+
+            renderResults(data.results || []);
+
+            hideStatus();
+
+
+        } catch (error) {
+
+            showStatus(
+                "❌ " +
+                (error.message ||
+                "حدث خطأ غير متوقع."),
+                true
+            );
+
+        } finally {
+
+            button.disabled = false;
+            button.textContent = "🚀 استخراج المنشورات";
+
+        }
     }
 
-}
+
+    /* عرض النتائج */
+    function renderResults(items) {
+
+        resultsCard.style.display = "block";
+
+        resultCount.textContent =
+            "عدد النتائج: " + items.length;
 
 
-function renderResults(items) {
+        if (!items.length) {
 
-    resultsCard.style.display = "block";
-
-
-    if (!items.length) {
-
-        resultsBox.innerHTML = `
-            <div class="empty">
-                لا توجد نتائج لعرضها.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    resultsBox.innerHTML = items.map(item => {
-
-        const pageName = escapeHTML(
-            item.page_name ||
-            "الحساب غير معروف"
-        );
-
-
-        const postText = escapeHTML(
-            item.post_text ||
-            "لا يوجد نص منشور ظاهر."
-        );
-
-
-        const postURL = safeURL(
-            item.post_url
-        );
-
-
-        let errorHTML = "";
-
-
-        if (item.error) {
-
-            errorHTML = `
-                <div class="error-message">
-                    ⚠️ ${escapeHTML(item.error)}
+            resultsBox.innerHTML = `
+                <div class="empty">
+                    لا توجد نتائج لعرضها.
                 </div>
             `;
 
+            return;
         }
 
 
-        return `
-            <div class="result-item">
+        resultsBox.innerHTML = items.map(item => {
 
-                <div class="result-line">
+            const pageName = escapeHTML(
+                item.page_name ||
+                "الحساب غير معروف"
+            );
 
-                    <a
-                        class="page-link"
-                        href="${postURL}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >${pageName}</a>:<span class="post-text">${postText}</span>
+
+            const postText = escapeHTML(
+                item.post_text ||
+                "لا يوجد نص منشور ظاهر."
+            );
+
+
+            const postURL = safeURL(
+                item.post_url
+            );
+
+
+            let errorHTML = "";
+
+
+            if (item.error) {
+
+                errorHTML = `
+                    <div class="error-message">
+                        ⚠️ ${escapeHTML(item.error)}
+                    </div>
+                `;
+            }
+
+
+            return `
+                <div class="result-item">
+
+                    <div class="result-line">
+
+                        <a
+                            class="page-link"
+                            href="${postURL}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >${pageName}</a>:<span class="post-text">${postText}</span>
+
+                    </div>
+
+                    ${errorHTML}
 
                 </div>
+            `;
 
-                ${errorHTML}
-
-            </div>
-        `;
-
-    }).join("");
-
-}
+        }).join("");
+    }
 
 
-function showStatus(message, isError = false) {
+    /* حماية النص */
+    function escapeHTML(value) {
 
-    statusBox.textContent = message;
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
 
-    statusBox.style.display = "block";
-
-    statusBox.style.background =
-        isError
-            ? "#fff1f0"
-            : "#f0f2ff";
-
-    statusBox.style.color =
-        isError
-            ? "#b42318"
-            : "#454a9a";
-}
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
 
-function hideStatus() {
+    /* حماية الرابط */
+    function safeURL(url) {
 
-    statusBox.style.display = "none";
+        if (!url) {
+            return "#";
+        }
 
-}
+        const value = String(url).trim();
+
+        if (
+            value.startsWith("https://") ||
+            value.startsWith("http://")
+        ) {
+            return value;
+        }
+
+        return "#";
+    }
+
+
+    /* الحالة */
+    function showStatus(message, isError = false) {
+
+        statusBox.textContent = message;
+        statusBox.style.display = "block";
+
+        statusBox.style.background =
+            isError
+                ? "#fff1f0"
+                : "#f0f2ff";
+
+        statusBox.style.color =
+            isError
+                ? "#b42318"
+                : "#454a9a";
+    }
+
+
+    function hideStatus() {
+
+        statusBox.style.display = "none";
+    }
+
+
+    /* الصفحة الرئيسية */
+    function goHome() {
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+
+    /* عن الموقع */
+    function openAbout() {
+
+        document.getElementById("aboutModal").style.display = "flex";
+    }
+
+
+    /* تواصل معنا */
+    function openContact() {
+
+        document.getElementById("contactModal").style.display = "flex";
+    }
+
+
+    /* إغلاق النوافذ */
+    function closeModal(id) {
+
+        document.getElementById(id).style.display = "none";
+    }
+
+
+    /* إغلاق النافذة عند الضغط خارجها */
+    window.addEventListener("click", function(event) {
+
+        if (event.target.classList.contains("modal")) {
+
+            event.target.style.display = "none";
+        }
+
+    });
+
+
+    updateLinkCount();
 
 </script>
 
 </body>
 </html>
+```
