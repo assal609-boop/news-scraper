@@ -11,154 +11,262 @@ REFETCHER_URL = "https://api.refetcher.com/"
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html")
 
 
 def clean_url(url):
-    url = url.strip().replace(" ", "")
-    if not re.match(r"^https?://", url, re.IGNORECASE):
-        url = "https://" + url
-    return url
+    url = url.strip().replace(" ", "")
+
+    if not re.match(r"^https?://", url, re.IGNORECASE):
+        url = "https://" + url
+
+    return url
 
 
 def detect_platform(url):
-    lower = url.lower()
-    if "instagram.com" in lower:
-        return "Instagram"
-    if "x.com" in lower or "twitter.com" in lower:
-        return "X / Twitter"
-    if "facebook.com" in lower or "fb.watch" in lower:
-        return "Facebook"
-    return "صفحة إلكترونية"
+    lower = url.lower()
+
+    if "instagram.com" in lower:
+        return "Instagram"
+
+    if "x.com" in lower or "twitter.com" in lower:
+        return "X / Twitter"
+
+    if "facebook.com" in lower or "fb.watch" in lower:
+        return "Facebook"
+
+    return "غير معروف"
+
+
+def error_message(status_code, data):
+    if status_code == 401:
+        return "مفتاح Refetcher غير صحيح."
+
+    if status_code == 402:
+        return "رصيد Refetcher غير كافٍ."
+
+    if status_code == 429:
+        return "تم تجاوز الحد مؤقتًا. حاول مرة أخرى."
+
+    if status_code == 502:
+        return "الرابط غير صالح"
+
+    if isinstance(data, dict):
+        error = data.get("error")
+
+        if isinstance(error, dict):
+            return error.get(
+                "message",
+                "الرابط غير صالح"
+            )
+
+        if isinstance(error, str):
+            return error
+
+    return "الرابط غير صالح"
 
 
 @app.route("/extract", methods=["POST"])
 def extract():
-    try:
-        data = request.get_json(silent=True) or {}
-        raw_urls = data.get("urls", "")
 
-        if not isinstance(raw_urls, str):
-            return jsonify({
-                "status": "error",
-                "message": "صيغة الروابط غير صحيحة."
-            }), 400
+    try:
 
-        urls = [
-            clean_url(x)
-            for x in raw_urls.splitlines()
-            if x.strip()
-        ]
+        data = request.get_json(silent=True) or {}
 
-        urls = list(dict.fromkeys(urls))
+        raw_urls = data.get("urls", "")
 
-        if not urls:
-            return jsonify({
-                "status": "error",
-                "message": "ضع رابطًا واحدًا على الأقل."
-            }), 400
+        if not isinstance(raw_urls, str):
+            return jsonify({
+                "status": "error",
+                "message": "صيغة الروابط غير صحيحة."
+            }), 400
 
-        if len(urls) > 50:
-            return jsonify({
-                "status": "error",
-                "message": "الحد الأقصى 50 رابطًا في المرة الواحدة."
-            }), 400
+        urls = [
+            clean_url(x)
+            for x in raw_urls.splitlines()
+            if x.strip()
+        ]
 
-        valid_urls = [u for u in urls if any(p in u.lower() for p in ["facebook.com", "fb.watch", "instagram.com", "x.com", "twitter.com"])]
+        # إزالة الروابط المكررة
+        urls = list(dict.fromkeys(urls))
 
-        if not valid_urls:
-            return jsonify({
-                "status": "error",
-                "message": "الرجاء إدخال روابط صالحة لمصادر مدعومة."
-            }), 400
+        if not urls:
+            return jsonify({
+                "status": "error",
+                "message": "ضع رابطًا واحدًا على الأقل."
+            }), 400
 
-        if not REFETCHER_API_KEY:
-            return jsonify({
-                "status": "error",
-                "message": "مفتاح REFETCHER_API_KEY غير موجود في إعدادات المنصة."
-            }), 500
+        if len(urls) > 50:
+            return jsonify({
+                "status": "error",
+                "message": "الحد الأقصى 50 رابطًا في المرة الواحدة."
+            }), 400
 
-        headers = {
-            "X-API-Key": REFETCHER_API_KEY,
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        }
+        valid_urls = []
 
-        response = requests.post(
-            REFETCHER_URL,
-            json={"urls": valid_urls},
-            headers=headers,
-            timeout=120
-        )
+        for url in urls:
 
-        try:
-            api_data = response.json()
-        except Exception:
-            api_data = {}
+            lower = url.lower()
 
-        if response.status_code != 200:
-            return jsonify({
-                "status": "error",
-                "message": "حدث خطأ من خدمة الاستخراج الخارجية. حاول لاحقاً."
-            }), response.status_code
+            if (
+                "facebook.com/" in lower
+                or "fb.watch/" in lower
+                or "instagram.com/" in lower
+                or "x.com/" in lower
+                or "twitter.com/" in lower
+            ):
+                valid_urls.append(url)
 
-        api_results = api_data.get("results", [])
-        results = []
+        if not valid_urls:
+            return jsonify({
+                "status": "error",
+                "message": "الرابط غير صالح"
+            }), 400
 
-        api_dict = {item.get("url"): item for item in api_results}
+        if not REFETCHER_API_KEY:
 
-        for original_url in valid_urls:
-            platform = detect_platform(original_url)
-            item = api_dict.get(original_url, {})
-            
-            post = item.get("post") or {}
-            author = item.get("author") or {}
+            return jsonify({
+                "status": "error",
+                "message": "مفتاح REFETCHER_API_KEY غير موجود في Render."
+            }), 500
 
-            # استخراج اسم الحساب الصريح بدقة
-            page_name = (
-                author.get("name")
-                or author.get("handle")
-                or author.get("username")
-                or f"صفحة {platform}"
-            )
+        headers = {
+            "X-API-Key": REFETCHER_API_KEY,
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        }
 
-            # استخراج النص الصريح للمنشور بدقة
-            post_text = (
-                post.get("caption")
-                or post.get("text")
-                or post.get("content")
-                or ""
-            ).strip()
+        payload = {
+            "urls": valid_urls
+        }
 
-            if not post_text:
-                post_text = "النص الصريح غير متوفر أو أن المنشور محمي"
+        response = requests.post(
+            REFETCHER_URL,
+            json=payload,
+            headers=headers,
+            timeout=120
+        )
 
-            results.append({
-                "success": True,
-                "platform": platform,
-                "page_name": page_name,
-                "post_text": post_text,
-                "post_url": original_url
-            })
+        try:
+            api_data = response.json()
+        except Exception:
+            api_data = {}
 
-        return jsonify({
-            "status": "success",
-            "results": results,
-            "total": len(results)
-        })
+        if response.status_code != 200:
 
-    except requests.exceptions.Timeout:
-        return jsonify({
-            "status": "error",
-            "message": "انتهت مهلة الاتصال. حاول مرة أخرى."
-        }), 504
-    except Exception as e:
-        print("SERVER ERROR:", repr(e))
-        return jsonify({
-            "status": "error",
-            "message": "حدث خطأ غير متوقع في الخادم."
-        }), 500
+            return jsonify({
+                "status": "error",
+                "message": error_message(
+                    response.status_code,
+                    api_data
+                )
+            }), response.status_code
+
+        api_results = api_data.get("results", [])
+
+        results = []
+
+        for item in api_results:
+
+            original_url = item.get("url", "")
+
+            platform = (
+                item.get("platform")
+                or detect_platform(original_url)
+            )
+
+            # المنشور فشل
+            if item.get("success") is not True:
+
+                error = item.get("error")
+
+                # أي فشل في استخراج الرابط
+                message = "الرابط غير صالح"
+
+                results.append({
+                    "success": False,
+                    "platform": platform,
+                    "page_name": "غير متوفر",
+                    "post_text": "",
+                    "post_url": original_url,
+                    "error": message
+                })
+
+                continue
+
+            post = item.get("post") or {}
+            author = item.get("author") or {}
+
+            # اسم الحساب
+            page_name = (
+                author.get("name")
+                or author.get("handle")
+                or "الحساب غير معروف"
+            )
+
+            # نص المنشور
+            post_text = (
+                post.get("caption")
+                or ""
+            ).strip()
+
+            # الرابط الذي سنربطه باسم الحساب
+            post_url = (
+                post.get("normalizedUrl")
+                or original_url
+            )
+
+            results.append({
+
+                "success": True,
+
+                "platform": platform,
+
+                "page_name": page_name,
+
+                "post_text": post_text,
+
+                "post_url": post_url
+
+            })
+
+        return jsonify({
+
+            "status": "success",
+
+            "results": results,
+
+            "total": len(results)
+
+        })
+
+    except requests.exceptions.Timeout:
+
+        return jsonify({
+            "status": "error",
+            "message": "انتهت مهلة الاتصال. حاول مرة أخرى."
+        }), 504
+
+    except requests.exceptions.RequestException:
+
+        return jsonify({
+            "status": "error",
+            "message": "تعذر الاتصال بخدمة الاستخراج."
+        }), 502
+
+    except Exception as e:
+
+        print("SERVER ERROR:", repr(e))
+
+        return jsonify({
+            "status": "error",
+            "message": "حدث خطأ غير متوقع في الخادم."
+        }), 500
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+    app.run(
+        host="0.0.0.0",
+        port=int(os.environ.get("PORT", 5000))
+    )
