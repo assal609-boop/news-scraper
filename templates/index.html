@@ -9,6 +9,7 @@
     <title>تفريغ منشورات السوشيال ميديا</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -20,7 +21,10 @@
             color: #222;
         }
 
-        /* الشريط العلوي */
+        /* =========================
+           الشريط العلوي
+        ========================= */
+
         .navbar {
             background: #ffffff;
             border-bottom: 1px solid #e7e8ef;
@@ -64,7 +68,11 @@
             color: #3f46b8;
         }
 
-        /* الصفحة */
+
+        /* =========================
+           الصفحة الرئيسية
+        ========================= */
+
         .container {
             width: min(1050px, 92%);
             margin: 35px auto;
@@ -92,7 +100,11 @@
             font-size: 15px;
         }
 
-        /* صندوق الإدخال */
+
+        /* =========================
+           صندوق إدخال الروابط
+        ========================= */
+
         .input-card {
             background: white;
             border-radius: 18px;
@@ -128,7 +140,11 @@
             box-shadow: 0 0 0 3px rgba(96, 103, 217, 0.08);
         }
 
-        /* أدوات الإدخال */
+
+        /* =========================
+           الأدوات
+        ========================= */
+
         .tools {
             margin-top: 12px;
             display: flex;
@@ -170,6 +186,11 @@
             margin-right: auto;
         }
 
+
+        /* =========================
+           زر الاستخراج
+        ========================= */
+
         .extract-button {
             width: 100%;
             margin-top: 13px;
@@ -194,7 +215,11 @@
             cursor: not-allowed;
         }
 
-        /* الحالة */
+
+        /* =========================
+           رسالة الحالة
+        ========================= */
+
         .status {
             display: none;
             margin-top: 12px;
@@ -204,7 +229,11 @@
             font-size: 14px;
         }
 
-        /* النتائج */
+
+        /* =========================
+           النتائج
+        ========================= */
+
         .results-card {
             display: none;
             background: white;
@@ -225,26 +254,39 @@
         .results-header h2 {
             margin: 0;
             color: #252a5c;
-            font-size: 19px;
+            font-size: 20px;
+            font-weight: 800;
         }
 
         .result-item {
             border: 1px solid #e8e9f0;
-            border-radius: 12px;
-            padding: 14px;
+            border-radius: 13px;
+            padding: 16px;
             margin-bottom: 10px;
             background: #fff;
+            transition: 0.2s;
         }
 
+        .result-item:hover {
+            box-shadow: 0 4px 15px rgba(30, 35, 90, 0.06);
+        }
+
+
+        /* =========================
+           خط النتائج
+        ========================= */
+
         .result-line {
-            line-height: 1.9;
-            font-size: 15px;
+            line-height: 2;
+            font-size: 18px;
+            font-weight: 600;
             word-break: break-word;
+            letter-spacing: 0.1px;
         }
 
         .page-link {
             color: #1769e0;
-            font-weight: bold;
+            font-weight: 800;
             text-decoration: none;
         }
 
@@ -254,11 +296,17 @@
 
         .post-text {
             color: #222;
+            font-weight: 600;
             white-space: pre-wrap;
         }
 
+
+        /* =========================
+           الأخطاء
+        ========================= */
+
         .error-message {
-            margin-top: 8px;
+            margin-top: 9px;
             color: #b42318;
             background: #fff1f0;
             padding: 8px 10px;
@@ -266,13 +314,22 @@
             font-size: 13px;
         }
 
+
+        /* =========================
+           لا توجد نتائج
+        ========================= */
+
         .empty {
             text-align: center;
             color: #777;
             padding: 25px;
         }
 
-        /* النوافذ */
+
+        /* =========================
+           النوافذ
+        ========================= */
+
         .modal {
             display: none;
             position: fixed;
@@ -314,6 +371,11 @@
             cursor: pointer;
         }
 
+
+        /* =========================
+           الفوتر
+        ========================= */
+
         .footer {
             text-align: center;
             color: #999;
@@ -321,7 +383,11 @@
             padding: 25px 0;
         }
 
-        /* الهاتف */
+
+        /* =========================
+           الهاتف
+        ========================= */
+
         @media (max-width: 650px) {
 
             .navbar {
@@ -380,30 +446,52 @@
                 margin-right: 0;
                 text-align: center;
             }
+
+            .result-line {
+                font-size: 16px;
+                line-height: 1.9;
+            }
+
+            .result-item {
+                padding: 14px;
+            }
         }
+
     </style>
 </head>
 
+
 <body>
 
-    <!-- الشريط العلوي -->
+
+    <!-- =========================
+         الشريط العلوي
+    ========================= -->
+
     <nav class="navbar">
 
         <div class="brand">
             📱 تفريغ السوشيال ميديا
         </div>
 
+
         <div class="nav-links">
 
-            <button class="active" onclick="goHome()">
+            <button
+                class="active"
+                onclick="goHome()">
                 🏠 الصفحة الرئيسية
             </button>
 
-            <button onclick="openAbout()">
+
+            <button
+                onclick="openAbout()">
                 ℹ️ عن الموقع
             </button>
 
-            <button onclick="openContact()">
+
+            <button
+                onclick="openContact()">
                 📞 تواصل معنا
             </button>
 
@@ -412,18 +500,25 @@
     </nav>
 
 
+
     <main class="container">
 
-        <!-- العنوان -->
+
+        <!-- =========================
+             العنوان
+        ========================= -->
+
         <section class="hero">
 
             <div class="hero-icon">
                 📱
             </div>
 
+
             <h1>
                 تفريغ منشورات السوشيال ميديا
             </h1>
+
 
             <p>
                 استخرج اسم الحساب ونص المنشور من Facebook وInstagram وX
@@ -432,159 +527,298 @@
         </section>
 
 
-        <!-- الإدخال -->
+
+        <!-- =========================
+             إدخال الروابط
+        ========================= -->
+
         <section class="input-card">
+
 
             <div class="input-title">
                 🔗 أدخل روابط المنشورات
             </div>
+
 
             <textarea
                 id="urls"
                 placeholder="ضع الروابط هنا، كل رابط في سطر منفصل..."></textarea>
 
 
-            <!-- أدوات -->
+
+            <!-- أدوات الروابط -->
+
             <div class="tools">
 
-                <select id="platformFilter" class="filter">
-                    <option value="all">🌐 كل المنصات</option>
-                    <option value="facebook">🔵 Facebook</option>
-                    <option value="instagram">🟣 Instagram</option>
-                    <option value="x">⚫ X</option>
+
+                <select
+                    id="platformFilter"
+                    class="filter">
+
+                    <option value="all">
+                        🌐 كل المنصات
+                    </option>
+
+                    <option value="facebook">
+                        🔵 Facebook
+                    </option>
+
+                    <option value="instagram">
+                        🟣 Instagram
+                    </option>
+
+                    <option value="x">
+                        ⚫ X
+                    </option>
+
                 </select>
+
 
 
                 <button
                     class="tool-button"
                     onclick="copyLinks()">
+
                     📋 نسخ
+
                 </button>
 
 
-                <span id="linkCount" class="count">
+
+                <span
+                    id="linkCount"
+                    class="count">
+
                     عدد الروابط: 0
+
                 </span>
+
 
             </div>
 
+
+
+            <!-- زر الاستخراج -->
 
             <button
                 id="extractButton"
                 class="extract-button"
                 onclick="extractPosts()">
+
                 🚀 استخراج المنشورات
+
             </button>
 
 
-            <div id="status" class="status"></div>
+
+            <div
+                id="status"
+                class="status">
+            </div>
+
 
         </section>
 
 
-        <!-- النتائج -->
-        <section id="resultsCard" class="results-card">
+
+        <!-- =========================
+             النتائج
+        ========================= -->
+
+        <section
+            id="resultsCard"
+            class="results-card">
+
 
             <div class="results-header">
+
 
                 <h2>
                     📋 النتائج
                 </h2>
 
-                <span id="resultCount" class="count"></span>
+
+                <span
+                    id="resultCount"
+                    class="count">
+                </span>
+
 
             </div>
 
+
             <div id="results"></div>
 
+
         </section>
+
 
 
         <div class="footer">
             أداة تفريغ المنشورات من منصات التواصل الاجتماعي
         </div>
 
+
     </main>
 
 
-    <!-- نافذة عن الموقع -->
-    <div id="aboutModal" class="modal">
+
+    <!-- =========================
+         نافذة عن الموقع
+    ========================= -->
+
+    <div
+        id="aboutModal"
+        class="modal">
+
 
         <div class="modal-box">
 
-            <h2>ℹ️ عن الموقع</h2>
+
+            <h2>
+                ℹ️ عن الموقع
+            </h2>
+
 
             <p>
                 أداة تساعدك على استخراج اسم الحساب ونص المنشور
                 من روابط منشورات منصات التواصل الاجتماعي المدعومة.
             </p>
 
+
             <button
                 class="close-button"
                 onclick="closeModal('aboutModal')">
+
                 إغلاق
+
             </button>
 
+
         </div>
+
 
     </div>
 
 
-    <!-- نافذة تواصل معنا -->
-    <div id="contactModal" class="modal">
+
+    <!-- =========================
+         نافذة تواصل معنا
+    ========================= -->
+
+    <div
+        id="contactModal"
+        class="modal">
+
 
         <div class="modal-box">
 
-            <h2>📞 تواصل معنا</h2>
+
+            <h2>
+                📞 تواصل معنا
+            </h2>
+
 
             <p>
                 لأي استفسار أو ملاحظة حول الموقع،
                 يمكنك التواصل مع فريق الموقع.
             </p>
 
+
             <button
                 class="close-button"
                 onclick="closeModal('contactModal')">
+
                 إغلاق
+
             </button>
 
+
         </div>
+
 
     </div>
 
 
+
 <script>
 
-    const urlsInput = document.getElementById("urls");
-    const linkCount = document.getElementById("linkCount");
-    const platformFilter = document.getElementById("platformFilter");
-    const button = document.getElementById("extractButton");
-    const statusBox = document.getElementById("status");
-    const resultsCard = document.getElementById("resultsCard");
-    const resultsBox = document.getElementById("results");
-    const resultCount = document.getElementById("resultCount");
+
+    /* =========================
+       العناصر
+    ========================= */
+
+    const urlsInput =
+        document.getElementById("urls");
 
 
-    /* حساب عدد الروابط */
+    const linkCount =
+        document.getElementById("linkCount");
+
+
+    const platformFilter =
+        document.getElementById("platformFilter");
+
+
+    const button =
+        document.getElementById("extractButton");
+
+
+    const statusBox =
+        document.getElementById("status");
+
+
+    const resultsCard =
+        document.getElementById("resultsCard");
+
+
+    const resultsBox =
+        document.getElementById("results");
+
+
+    const resultCount =
+        document.getElementById("resultCount");
+
+
+
+    /* =========================
+       عدد الروابط
+    ========================= */
+
     function updateLinkCount() {
 
-        const urls = urlsInput.value
-            .split(/\r?\n/)
-            .map(x => x.trim())
-            .filter(Boolean);
+
+        const urls =
+            urlsInput.value
+                .split(/\r?\n/)
+                .map(x => x.trim())
+                .filter(Boolean);
+
 
         linkCount.textContent =
             "عدد الروابط: " + urls.length;
+
     }
 
 
-    urlsInput.addEventListener("input", updateLinkCount);
+
+    urlsInput.addEventListener(
+        "input",
+        updateLinkCount
+    );
 
 
-    /* نسخ الروابط */
+
+    /* =========================
+       نسخ الروابط
+    ========================= */
+
     async function copyLinks() {
 
-        const text = urlsInput.value.trim();
+
+        const text =
+            urlsInput.value.trim();
+
 
         if (!text) {
 
@@ -596,37 +830,61 @@
             return;
         }
 
+
         try {
+
 
             await navigator.clipboard.writeText(text);
 
+
             showStatus(
                 "✅ تم نسخ الروابط.",
                 false
             );
 
-            setTimeout(hideStatus, 1800);
+
+            setTimeout(
+                hideStatus,
+                1800
+            );
+
 
         } catch (error) {
 
+
             urlsInput.select();
 
+
             document.execCommand("copy");
+
 
             showStatus(
                 "✅ تم نسخ الروابط.",
                 false
             );
 
-            setTimeout(hideStatus, 1800);
+
+            setTimeout(
+                hideStatus,
+                1800
+            );
+
         }
+
     }
 
 
-    /* استخراج المنشورات */
+
+    /* =========================
+       استخراج المنشورات
+    ========================= */
+
     async function extractPosts() {
 
-        const rawText = urlsInput.value.trim();
+
+        const rawText =
+            urlsInput.value.trim();
+
 
         if (!rawText) {
 
@@ -639,53 +897,90 @@
         }
 
 
-        let urls = rawText
-            .split(/\r?\n/)
-            .map(url => url.trim())
-            .filter(Boolean);
+        let urls =
+            rawText
+                .split(/\r?\n/)
+                .map(url => url.trim())
+                .filter(Boolean);
 
 
-        const filter = platformFilter.value;
 
+        const filter =
+            platformFilter.value;
+
+
+
+        /* فلترة الروابط */
 
         if (filter !== "all") {
 
+
             urls = urls.filter(url => {
 
-                const lower = url.toLowerCase();
+
+                const lower =
+                    url.toLowerCase();
+
 
                 if (filter === "facebook") {
-                    return lower.includes("facebook.com") ||
-                           lower.includes("fb.com");
+
+                    return (
+                        lower.includes("facebook.com") ||
+                        lower.includes("fb.com")
+                    );
+
                 }
+
 
                 if (filter === "instagram") {
-                    return lower.includes("instagram.com");
+
+                    return lower.includes(
+                        "instagram.com"
+                    );
+
                 }
+
 
                 if (filter === "x") {
-                    return lower.includes("x.com") ||
-                           lower.includes("twitter.com");
+
+                    return (
+                        lower.includes("x.com") ||
+                        lower.includes("twitter.com")
+                    );
+
                 }
 
+
                 return true;
+
             });
+
         }
 
 
+
         if (!urls.length) {
+
 
             showStatus(
                 "⚠️ لا توجد روابط تطابق المنصة المختارة.",
                 true
             );
 
+
             return;
+
         }
 
 
+
+        /* حالة التحميل */
+
         button.disabled = true;
-        button.textContent = "⏳ جاري الاستخراج...";
+
+
+        button.textContent =
+            "⏳ جاري الاستخراج...";
 
 
         showStatus(
@@ -693,247 +988,431 @@
         );
 
 
-        resultsCard.style.display = "none";
-        resultsBox.innerHTML = "";
+        resultsCard.style.display =
+            "none";
+
+
+        resultsBox.innerHTML =
+            "";
+
 
 
         try {
 
-            const response = await fetch("/extract", {
 
-                method: "POST",
+            const response =
+                await fetch(
+                    "/extract",
+                    {
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                        method: "POST",
 
-                body: JSON.stringify({
-                    urls: urls
-                })
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
 
-            });
+                        body: JSON.stringify({
+                            urls: urls
+                        })
+
+                    }
+                );
 
 
-            const data = await response.json();
+
+            const data =
+                await response.json();
 
 
-            if (!response.ok || !data.success) {
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
 
                 throw new Error(
                     data.error ||
                     "حدث خطأ أثناء استخراج المنشورات."
                 );
+
             }
 
 
-            renderResults(data.results || []);
+
+            renderResults(
+                data.results || []
+            );
+
 
             hideStatus();
 
 
+
         } catch (error) {
+
 
             showStatus(
                 "❌ " +
-                (error.message ||
-                "حدث خطأ غير متوقع."),
+                (
+                    error.message ||
+                    "حدث خطأ غير متوقع."
+                ),
                 true
             );
 
+
         } finally {
 
+
             button.disabled = false;
-            button.textContent = "🚀 استخراج المنشورات";
+
+
+            button.textContent =
+                "🚀 استخراج المنشورات";
 
         }
+
     }
 
 
-    /* عرض النتائج */
+
+    /* =========================
+       عرض النتائج
+    ========================= */
+
     function renderResults(items) {
 
-        resultsCard.style.display = "block";
+
+        resultsCard.style.display =
+            "block";
+
 
         resultCount.textContent =
-            "عدد النتائج: " + items.length;
+            "عدد النتائج: " +
+            items.length;
+
 
 
         if (!items.length) {
 
+
             resultsBox.innerHTML = `
+
                 <div class="empty">
+
                     لا توجد نتائج لعرضها.
+
                 </div>
+
             `;
 
+
             return;
+
         }
 
 
-        resultsBox.innerHTML = items.map(item => {
 
-            const pageName = escapeHTML(
-                item.page_name ||
-                "الحساب غير معروف"
-            );
+        resultsBox.innerHTML =
+
+            items.map(item => {
 
 
-            const postText = escapeHTML(
-                item.post_text ||
-                "لا يوجد نص منشور ظاهر."
-            );
+                const pageName =
+                    escapeHTML(
+                        item.page_name ||
+                        "الحساب غير معروف"
+                    );
 
 
-            const postURL = safeURL(
-                item.post_url
-            );
+
+                const postText =
+                    escapeHTML(
+                        item.post_text ||
+                        "لا يوجد نص منشور ظاهر."
+                    );
 
 
-            let errorHTML = "";
+
+                const postURL =
+                    safeURL(
+                        item.post_url
+                    );
 
 
-            if (item.error) {
 
-                errorHTML = `
-                    <div class="error-message">
-                        ⚠️ ${escapeHTML(item.error)}
+                let errorHTML = "";
+
+
+
+                if (item.error) {
+
+
+                    errorHTML = `
+
+                        <div
+                            class="error-message">
+
+                            ⚠️
+                            ${escapeHTML(item.error)}
+
+                        </div>
+
+                    `;
+
+                }
+
+
+
+                return `
+
+                    <div class="result-item">
+
+                        <div class="result-line">
+
+                            <a
+                                class="page-link"
+                                href="${postURL}"
+                                target="_blank"
+                                rel="noopener noreferrer">
+
+                                ${pageName}
+
+                            </a>:<span class="post-text">${postText}</span>
+
+                        </div>
+
+                        ${errorHTML}
+
                     </div>
+
                 `;
-            }
 
 
-            return `
-                <div class="result-item">
+            }).join("");
 
-                    <div class="result-line">
-
-                        <a
-                            class="page-link"
-                            href="${postURL}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >${pageName}</a>:<span class="post-text">${postText}</span>
-
-                    </div>
-
-                    ${errorHTML}
-
-                </div>
-            `;
-
-        }).join("");
     }
 
 
-    /* حماية النص */
+
+    /* =========================
+       حماية النص
+    ========================= */
+
     function escapeHTML(value) {
+
 
         if (
             value === null ||
             value === undefined
         ) {
+
             return "";
+
         }
 
+
         return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
     }
 
 
-    /* حماية الرابط */
+
+    /* =========================
+       حماية الرابط
+    ========================= */
+
     function safeURL(url) {
 
+
         if (!url) {
+
             return "#";
+
         }
 
-        const value = String(url).trim();
+
+        const value =
+            String(url).trim();
+
 
         if (
             value.startsWith("https://") ||
             value.startsWith("http://")
         ) {
+
             return value;
+
         }
 
+
         return "#";
+
     }
 
 
-    /* الحالة */
-    function showStatus(message, isError = false) {
 
-        statusBox.textContent = message;
-        statusBox.style.display = "block";
+    /* =========================
+       رسائل الحالة
+    ========================= */
+
+    function showStatus(
+        message,
+        isError = false
+    ) {
+
+
+        statusBox.textContent =
+            message;
+
+
+        statusBox.style.display =
+            "block";
+
 
         statusBox.style.background =
             isError
                 ? "#fff1f0"
                 : "#f0f2ff";
 
+
         statusBox.style.color =
             isError
                 ? "#b42318"
                 : "#454a9a";
+
     }
+
 
 
     function hideStatus() {
 
-        statusBox.style.display = "none";
+        statusBox.style.display =
+            "none";
+
     }
 
 
-    /* الصفحة الرئيسية */
+
+    /* =========================
+       الصفحة الرئيسية
+    ========================= */
+
     function goHome() {
 
+
         window.scrollTo({
+
             top: 0,
+
             behavior: "smooth"
+
         });
+
     }
 
 
-    /* عن الموقع */
+
+    /* =========================
+       عن الموقع
+    ========================= */
+
     function openAbout() {
 
-        document.getElementById("aboutModal").style.display = "flex";
+
+        document.getElementById(
+            "aboutModal"
+        ).style.display = "flex";
+
     }
 
 
-    /* تواصل معنا */
+
+    /* =========================
+       تواصل معنا
+    ========================= */
+
     function openContact() {
 
-        document.getElementById("contactModal").style.display = "flex";
+
+        document.getElementById(
+            "contactModal"
+        ).style.display = "flex";
+
     }
 
 
-    /* إغلاق النوافذ */
+
+    /* =========================
+       إغلاق النوافذ
+    ========================= */
+
     function closeModal(id) {
 
-        document.getElementById(id).style.display = "none";
+
+        document.getElementById(id)
+            .style.display = "none";
+
     }
 
 
-    /* إغلاق النافذة عند الضغط خارجها */
-    window.addEventListener("click", function(event) {
 
-        if (event.target.classList.contains("modal")) {
+    /* إغلاق عند الضغط خارج النافذة */
 
-            event.target.style.display = "none";
+    window.addEventListener(
+        "click",
+        function(event) {
+
+
+            if (
+                event.target.classList
+                    .contains("modal")
+            ) {
+
+                event.target.style.display =
+                    "none";
+
+            }
+
         }
+    );
 
-    });
 
+
+    /* تشغيل عداد الروابط */
 
     updateLinkCount();
+
 
 </script>
 
 </body>
+
 </html>
 ```
