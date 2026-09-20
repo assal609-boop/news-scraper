@@ -8,144 +8,409 @@
     <title>مستخرج المنشورات</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
 
+        :root {
+            --primary: #6c4cff;
+            --primary-dark: #5236d6;
+            --bg: #f5f6fb;
+            --card: #ffffff;
+            --text: #17171c;
+            --muted: #777b87;
+            --border: #e8e9ef;
+        }
+
         body {
             margin: 0;
-            font-family: Arial, Tahoma, sans-serif;
-            background: #f7f7f7;
-            color: #222;
+            font-family:
+                Arial,
+                Tahoma,
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(108, 76, 255, 0.12),
+                    transparent 35%
+                ),
+                var(--bg);
+
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        header {
+            padding: 22px 0;
         }
 
         .container {
-            width: min(1050px, 94%);
+            width: min(1120px, 94%);
             margin: auto;
         }
 
-        header {
-            background: white;
-            border-bottom: 1px solid #e7e7e7;
-            padding: 18px 0;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .header-content {
+        .brand {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 20px;
+            gap: 11px;
         }
 
-        .logo {
-            font-size: 23px;
-            font-weight: 800;
-            color: #222;
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+            font-size: 22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #8065ff,
+                    #5b3ee6
+                );
+
+            box-shadow:
+                0 8px 20px
+                rgba(108, 76, 255, 0.25);
         }
 
-        .logo span {
-            color: #6c4cff;
+        .brand-text strong {
+            display: block;
+            font-size: 18px;
         }
 
-        main {
-            padding: 45px 0 60px;
+        .brand-text span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px;
         }
+
+
+        /* =========================
+           HERO
+        ========================= */
 
         .hero {
             text-align: center;
-            margin-bottom: 30px;
+            padding: 45px 0 30px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+
+            background: #eeeaff;
+            color: var(--primary);
+
+            padding: 7px 13px;
+            border-radius: 30px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            margin-bottom: 15px;
         }
 
         .hero h1 {
-            margin: 0 0 10px;
-            font-size: 34px;
-            font-weight: 800;
+            margin: 0;
+
+            font-size: clamp(
+                30px,
+                5vw,
+                48px
+            );
+
+            line-height: 1.15;
+            font-weight: 900;
+            letter-spacing: -1px;
+        }
+
+        .hero h1 span {
+            color: var(--primary);
         }
 
         .hero p {
-            margin: 0;
-            color: #777;
+            margin: 15px auto 0;
+
+            max-width: 650px;
+
+            color: var(--muted);
+
             font-size: 16px;
+            line-height: 1.8;
         }
 
-        .input-card {
-            background: white;
-            border-radius: 16px;
+
+        /* =========================
+           MAIN TOOL
+        ========================= */
+
+        .tool {
+            background: var(--card);
+
+            border: 1px solid
+                rgba(0, 0, 0, 0.05);
+
+            border-radius: 22px;
+
             padding: 22px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.06);
-            border: 1px solid #ededed;
+
+            box-shadow:
+                0 20px 60px
+                rgba(25, 20, 60, 0.08);
+
+            margin-bottom: 30px;
+        }
+
+        .tool-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 12px;
+        }
+
+        .tool-title {
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .tool-hint {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+
+        /* =========================
+           INPUT AREA
+        ========================= */
+
+        .input-area {
+            display: grid;
+
+            grid-template-columns:
+                1fr 155px;
+
+            gap: 12px;
         }
 
         textarea {
             width: 100%;
-            height: 145px;
+            min-height: 150px;
+
             resize: vertical;
-            border: 2px solid #e6e6e6;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 15px;
-            font-family: Arial, Tahoma, sans-serif;
+
+            border: 2px solid
+                var(--border);
+
+            border-radius: 15px;
+
+            padding: 16px;
+
             outline: none;
+
+            font-family:
+                Arial,
+                Tahoma,
+                sans-serif;
+
+            font-size: 14px;
+
+            line-height: 1.7;
+
             direction: ltr;
             text-align: left;
+
+            background: #fafaff;
+
             transition: 0.2s;
         }
 
         textarea:focus {
-            border-color: #6c4cff;
+            border-color: var(--primary);
+
+            background: white;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(108, 76, 255, 0.08);
         }
 
-        .controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
 
-        .left-controls {
+        .copy-panel {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 10px;
+        }
+
+        .copy-btn {
+            width: 100%;
+            height: 52px;
+
+            border: none;
+
+            border-radius: 13px;
+
+            background: #17171c;
+            color: white;
+
+            font-size: 14px;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #000;
+
+            transform:
+                translateY(-2px);
+        }
+
+        .copy-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .link-counter {
+            flex: 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 13px;
+
+            background: #f5f4ff;
+
+            color: var(--primary);
+
+            font-size: 14px;
+            font-weight: 800;
+
+            min-height: 55px;
+        }
+
+
+        /* =========================
+           ACTION BAR
+        ========================= */
+
+        .action-bar {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            gap: 12px;
+
+            margin-top: 14px;
+        }
+
+        .filters {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
             flex-wrap: wrap;
+        }
+
+        .filter-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
         }
 
         select {
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            padding: 11px 14px;
+            height: 42px;
+
+            border: 1px solid
+                var(--border);
+
+            border-radius: 11px;
+
+            padding:
+                0 13px;
+
             background: white;
-            font-size: 14px;
-            cursor: pointer;
-            outline: none;
-        }
 
-        .count {
-            color: #777;
-            font-size: 14px;
-        }
-
-        button {
-            border: none;
-            border-radius: 10px;
-            padding: 12px 20px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
             font-family: inherit;
+
+            font-size: 13px;
+
+            outline: none;
+
+            cursor: pointer;
         }
 
         .extract-btn {
-            background: #6c4cff;
+            height: 47px;
+
+            padding:
+                0 25px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    #846cff
+                );
+
             color: white;
-            min-width: 150px;
+
+            font-family: inherit;
+
+            font-size: 14px;
+
+            font-weight: 800;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 20px
+                rgba(108, 76, 255, 0.22);
+
+            transition: 0.2s;
         }
 
         .extract-btn:hover {
-            background: #5839df;
-            transform: translateY(-1px);
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 12px 25px
+                rgba(108, 76, 255, 0.3);
         }
 
         .extract-btn:disabled {
@@ -154,296 +419,514 @@
             transform: none;
         }
 
-        .copy-btn {
-            background: #222;
-            color: white;
-        }
 
-        .copy-btn:hover {
-            background: #000;
-        }
-
-        .copy-btn:disabled {
-            opacity: 0.45;
-            cursor: not-allowed;
-        }
+        /* =========================
+           STATUS
+        ========================= */
 
         .status {
-            margin-top: 20px;
+            min-height: 25px;
+
             text-align: center;
-            font-size: 15px;
-            min-height: 24px;
-        }
 
-        .results-section {
-            margin-top: 30px;
-        }
+            margin: 12px 0;
 
-        .results-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
+            color: var(--muted);
 
-        .results-header h2 {
-            margin: 0;
-            font-size: 22px;
-        }
-
-        .results-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .result-card {
-            background: white;
-            border: 1px solid #e7e7e7;
-            border-radius: 13px;
-            padding: 17px 19px;
-            box-shadow: 0 3px 14px rgba(0, 0, 0, 0.04);
-        }
-
-        .result-line {
-            font-size: 19px;
-            line-height: 1.8;
-            font-weight: 700;
-            word-break: break-word;
-        }
-
-        .page-link {
-            color: #5638d9;
-            text-decoration: underline;
-            font-weight: 800;
-        }
-
-        .page-link:hover {
-            color: #3f25ae;
-        }
-
-        .colon {
-            margin: 0 4px;
-        }
-
-        .post-text {
-            color: #222;
-            font-weight: 700;
-        }
-
-        .platform-label {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 4px 9px;
-            border-radius: 20px;
-            background: #f1efff;
-            color: #6045d9;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .error-card {
-            border-right: 4px solid #e53935;
-        }
-
-        .error-text {
-            color: #c62828;
-            font-size: 15px;
-            line-height: 1.7;
-            font-weight: 700;
-        }
-
-        .empty {
-            background: white;
-            border: 1px dashed #d5d5d5;
-            border-radius: 13px;
-            padding: 35px 20px;
-            text-align: center;
-            color: #888;
+            font-size: 14px;
         }
 
         .loading {
             display: inline-flex;
+
             align-items: center;
+
             gap: 8px;
         }
 
         .spinner {
-            width: 17px;
-            height: 17px;
-            border: 2px solid #ddd;
-            border-top-color: #6c4cff;
+            width: 16px;
+            height: 16px;
+
+            border:
+                2px solid #ddd;
+
+            border-top-color:
+                var(--primary);
+
             border-radius: 50%;
-            animation: spin 0.7s linear infinite;
+
+            animation:
+                spin .7s linear infinite;
         }
 
         @keyframes spin {
             to {
-                transform: rotate(360deg);
+                transform:
+                    rotate(360deg);
             }
         }
 
+
+        /* =========================
+           RESULTS HEADER
+        ========================= */
+
+        .results {
+            margin-top: 20px;
+        }
+
+        .results-top {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 15px;
+        }
+
+        .results-title {
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+        }
+
+        .results-title h2 {
+            margin: 0;
+
+            font-size: 22px;
+        }
+
+        .result-number {
+            background: #eeeaff;
+
+            color: var(--primary);
+
+            padding:
+                5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+
+            font-weight: 800;
+        }
+
+
+        /* =========================
+           SEARCH
+        ========================= */
+
+        .search-box {
+            position: relative;
+
+            width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+
+            height: 44px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 11px;
+
+            padding:
+                0 42px 0 13px;
+
+            outline: none;
+
+            font-family: inherit;
+
+            background: white;
+        }
+
+        .search-box input:focus {
+            border-color:
+                var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+
+            right: 14px;
+
+            top: 50%;
+
+            transform:
+                translateY(-50%);
+
+            color: #9295a0;
+        }
+
+
+        /* =========================
+           RESULT CARD
+        ========================= */
+
+        .results-list {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 11px;
+        }
+
+        .result-card {
+            background: white;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 15px;
+
+            padding: 17px 19px;
+
+            box-shadow:
+                0 5px 20px
+                rgba(20, 20, 40, 0.035);
+
+            animation:
+                resultIn .3s ease both;
+
+            transition: 0.2s;
+        }
+
+        .result-card:hover {
+            transform:
+                translateY(-2px);
+
+            box-shadow:
+                0 10px 25px
+                rgba(20, 20, 40, 0.07);
+        }
+
+        @keyframes resultIn {
+            from {
+                opacity: 0;
+                transform:
+                    translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform:
+                    translateY(0);
+            }
+        }
+
+        .result-line {
+            font-size: 18px;
+
+            line-height: 1.9;
+
+            font-weight: 700;
+
+            word-break: break-word;
+        }
+
+        .page-link {
+            color:
+                var(--primary);
+
+            font-weight: 900;
+
+            text-decoration:
+                none;
+        }
+
+        .page-link:hover {
+            text-decoration:
+                underline;
+        }
+
+        .colon {
+            margin:
+                0 5px;
+
+            color: #777;
+        }
+
+        .post-text {
+            color: #222;
+
+            font-weight: 700;
+        }
+
+
+        .error-card {
+            border-right:
+                4px solid #e53935;
+        }
+
+        .error-text {
+            margin-top: 7px;
+
+            color: #c62828;
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+
+        .empty {
+            background: white;
+
+            border:
+                1px dashed #d9dae2;
+
+            border-radius: 15px;
+
+            padding: 35px 20px;
+
+            text-align: center;
+
+            color: #888;
+        }
+
+
+        /* =========================
+           TOAST
+        ========================= */
+
         .toast {
             position: fixed;
+
             bottom: 25px;
+
             left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: #222;
+
+            transform:
+                translate(-50%, 20px);
+
+            background: #18181d;
+
             color: white;
-            padding: 12px 18px;
+
+            padding:
+                12px 18px;
+
             border-radius: 10px;
+
             opacity: 0;
+
             pointer-events: none;
-            transition: 0.25s;
+
+            transition: .25s;
+
             z-index: 9999;
+
             font-size: 14px;
+
+            box-shadow:
+                0 10px 30px
+                rgba(0,0,0,.2);
         }
 
         .toast.show {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
+
+            transform:
+                translate(-50%, 0);
         }
 
-        @media (max-width: 700px) {
 
-            main {
-                padding: 30px 0 45px;
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 760px) {
+
+            header {
+                padding: 16px 0;
+            }
+
+            .hero {
+                padding:
+                    30px 0 20px;
             }
 
             .hero h1 {
-                font-size: 27px;
+                font-size: 30px;
             }
 
             .hero p {
                 font-size: 14px;
             }
 
-            .input-card {
+            .tool {
                 padding: 15px;
+
+                border-radius: 17px;
             }
 
-            textarea {
-                height: 130px;
-                font-size: 14px;
+            .input-area {
+                grid-template-columns: 1fr;
             }
 
-            .controls {
+            .copy-panel {
+                display: grid;
+
+                grid-template-columns:
+                    1fr 1fr;
+            }
+
+            .action-bar {
                 flex-direction: column;
+
                 align-items: stretch;
             }
 
-            .left-controls {
-                width: 100%;
-                justify-content: space-between;
+            .filters {
+                justify-content:
+                    space-between;
             }
 
             .extract-btn {
                 width: 100%;
             }
 
-            .results-header {
+            .results-top {
+                flex-direction: column;
+
                 align-items: stretch;
             }
 
-            .results-header .copy-btn {
+            .search-box {
                 width: 100%;
             }
 
             .result-line {
-                font-size: 17px;
-                line-height: 1.75;
-            }
-
-            .logo {
-                font-size: 20px;
+                font-size: 16px;
             }
         }
+
+
+        @media (max-width: 430px) {
+
+            .brand-text span {
+                display: none;
+            }
+
+            .copy-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                display: grid;
+
+                grid-template-columns:
+                    auto 1fr;
+            }
+
+            .filters select {
+                width: 100%;
+            }
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-    <header>
-        <div class="container header-content">
-            <div class="logo">
-                <span>مستخرج</span> المنشورات
+
+<header>
+
+    <div class="container header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                ✦
             </div>
+
+            <div class="brand-text">
+
+                <strong>
+                    مستخرج المنشورات
+                </strong>
+
+                <span>
+                    Facebook · Instagram · X
+                </span>
+
+            </div>
+
         </div>
-    </header>
+
+    </div>
+
+</header>
 
 
-    <main>
 
-        <div class="container">
+<main>
 
-            <section class="hero">
-
-                <h1>استخراج منشورات التواصل الاجتماعي</h1>
-
-                <p>
-                    ضع روابط Facebook أو Instagram أو X لاستخراج محتوى المنشورات
-                </p>
-
-            </section>
+    <div class="container">
 
 
-            <section class="input-card">
+        <section class="hero">
+
+            <div class="hero-badge">
+                ⚡ استخراج سريع وسهل
+            </div>
+
+            <h1>
+                استخرج منشوراتك
+                <span>بسهولة</span>
+            </h1>
+
+            <p>
+                الصق روابط منشورات Facebook وInstagram وX
+                واحصل على محتواها في مكان واحد.
+            </p>
+
+        </section>
+
+
+
+        <section class="tool">
+
+
+            <div class="tool-top">
+
+                <div class="tool-title">
+                    🔗 روابط المنشورات
+                </div>
+
+                <div class="tool-hint">
+                    ضع كل رابط في سطر مستقل
+                </div>
+
+            </div>
+
+
+
+            <div class="input-area">
+
 
                 <textarea
                     id="urlInput"
-                    placeholder="ضع الروابط هنا، كل رابط في سطر مستقل..."
+                    placeholder="https://www.facebook.com/...
+https://www.instagram.com/...
+https://x.com/..."
                 ></textarea>
 
 
-                <div class="controls">
 
-                    <div class="left-controls">
-
-                        <select id="platformFilter">
-                            <option value="all">كل المنصات</option>
-                            <option value="facebook">Facebook</option>
-                            <option value="instagram">Instagram</option>
-                            <option value="x">X</option>
-                        </select>
-
-                        <span class="count">
-                            عدد الروابط:
-                            <strong id="linkCount">0</strong>
-                        </span>
-
-                    </div>
-
-
-                    <button
-                        id="extractBtn"
-                        class="extract-btn"
-                        onclick="extractPosts()"
-                    >
-                        استخراج المنشورات
-                    </button>
-
-                </div>
-
-            </section>
-
-
-            <div id="status" class="status"></div>
-
-
-            <section
-                id="resultsSection"
-                class="results-section"
-                style="display:none;"
-            >
-
-                <div class="results-header">
-
-                    <h2>
-                        النتائج
-                        <span id="resultCount"></span>
-                    </h2>
+                <div class="copy-panel">
 
                     <button
                         id="copyBtn"
@@ -454,365 +937,661 @@
                         📋 نسخ النتائج
                     </button>
 
+
+                    <div class="link-counter">
+
+                        🔗
+
+                        <span
+                            style="margin-right:6px;"
+                        >
+                            الروابط:
+                        </span>
+
+                        <strong
+                            id="linkCount"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
                 </div>
 
 
-                <div
-                    id="resultsList"
-                    class="results-list"
-                ></div>
-
-            </section>
-
-        </div>
-
-    </main>
+            </div>
 
 
-    <div
-        id="toast"
-        class="toast"
-    ></div>
+
+            <div class="action-bar">
 
 
-    <script>
+                <div class="filters">
 
-        let allResults = [];
+                    <span class="filter-label">
+                        فلترة المنصة:
+                    </span>
 
+                    <select
+                        id="platformFilter"
+                    >
 
-        const urlInput =
-            document.getElementById("urlInput");
+                        <option value="all">
+                            كل المنصات
+                        </option>
 
-        const linkCount =
-            document.getElementById("linkCount");
+                        <option value="facebook">
+                            Facebook
+                        </option>
 
-        const platformFilter =
-            document.getElementById("platformFilter");
+                        <option value="instagram">
+                            Instagram
+                        </option>
 
-        const resultsSection =
-            document.getElementById("resultsSection");
+                        <option value="x">
+                            X
+                        </option>
 
-        const resultsList =
-            document.getElementById("resultsList");
+                    </select>
 
-        const resultCount =
-            document.getElementById("resultCount");
-
-        const copyBtn =
-            document.getElementById("copyBtn");
-
-        const extractBtn =
-            document.getElementById("extractBtn");
-
-        const status =
-            document.getElementById("status");
+                </div>
 
 
-        urlInput.addEventListener(
-            "input",
-            updateLinkCount
+
+                <button
+                    id="extractBtn"
+                    class="extract-btn"
+                    onclick="extractPosts()"
+                >
+                    🚀 استخراج المنشورات
+                </button>
+
+
+            </div>
+
+
+        </section>
+
+
+
+        <div
+            id="status"
+            class="status"
+        ></div>
+
+
+
+        <section
+            id="resultsSection"
+            class="results"
+            style="display:none;"
+        >
+
+
+            <div class="results-top">
+
+
+                <div class="results-title">
+
+                    <h2>
+                        النتائج
+                    </h2>
+
+                    <span
+                        id="resultCount"
+                        class="result-number"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+
+
+                <div class="search-box">
+
+                    <span
+                        class="search-icon"
+                    >
+                        🔎
+                    </span>
+
+                    <input
+                        id="searchInput"
+                        type="text"
+                        placeholder="ابحث في النتائج..."
+                    >
+
+                </div>
+
+
+            </div>
+
+
+
+            <div
+                id="resultsList"
+                class="results-list"
+            ></div>
+
+
+        </section>
+
+
+    </div>
+
+</main>
+
+
+
+<div
+    id="toast"
+    class="toast"
+></div>
+
+
+
+<script>
+
+    let allResults = [];
+
+
+    const urlInput =
+        document.getElementById(
+            "urlInput"
         );
 
 
-        platformFilter.addEventListener(
-            "change",
-            renderResults
+    const linkCount =
+        document.getElementById(
+            "linkCount"
         );
 
 
-        function updateLinkCount() {
-
-            const urls = getInputUrls();
-
-            linkCount.textContent = urls.length;
-        }
+    const platformFilter =
+        document.getElementById(
+            "platformFilter"
+        );
 
 
-        function getInputUrls() {
-
-            return urlInput.value
-                .split(/\r?\n/)
-                .map(url => url.trim())
-                .filter(Boolean);
-
-        }
+    const searchInput =
+        document.getElementById(
+            "searchInput"
+        );
 
 
-        function detectPlatform(item) {
-
-            if (
-                item &&
-                item.platform
-            ) {
-
-                const platform =
-                    String(item.platform).toLowerCase();
-
-                if (
-                    platform.includes("facebook")
-                ) {
-                    return "facebook";
-                }
-
-                if (
-                    platform.includes("instagram")
-                ) {
-                    return "instagram";
-                }
-
-                if (
-                    platform === "x" ||
-                    platform.includes("twitter")
-                ) {
-                    return "x";
-                }
-
-            }
+    const resultsSection =
+        document.getElementById(
+            "resultsSection"
+        );
 
 
-            const url =
+    const resultsList =
+        document.getElementById(
+            "resultsList"
+        );
+
+
+    const resultCount =
+        document.getElementById(
+            "resultCount"
+        );
+
+
+    const copyBtn =
+        document.getElementById(
+            "copyBtn"
+        );
+
+
+    const extractBtn =
+        document.getElementById(
+            "extractBtn"
+        );
+
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+
+    urlInput.addEventListener(
+        "input",
+        updateLinkCount
+    );
+
+
+    platformFilter.addEventListener(
+        "change",
+        renderResults
+    );
+
+
+    searchInput.addEventListener(
+        "input",
+        renderResults
+    );
+
+
+
+    function getInputUrls() {
+
+        return urlInput.value
+            .split(/\r?\n/)
+            .map(
+                url => url.trim()
+            )
+            .filter(Boolean);
+
+    }
+
+
+
+    function updateLinkCount() {
+
+        linkCount.textContent =
+            getInputUrls().length;
+
+    }
+
+
+
+    function detectPlatform(item) {
+
+        if (
+            item &&
+            item.platform
+        ) {
+
+            const platform =
                 String(
-                    item?.post_url || ""
+                    item.platform
                 ).toLowerCase();
 
 
             if (
-                url.includes("facebook.com") ||
-                url.includes("fb.com")
+                platform.includes(
+                    "facebook"
+                )
             ) {
                 return "facebook";
             }
 
 
             if (
-                url.includes("instagram.com")
+                platform.includes(
+                    "instagram"
+                )
             ) {
                 return "instagram";
             }
 
 
             if (
-                url.includes("x.com") ||
-                url.includes("twitter.com")
+                platform === "x" ||
+                platform.includes(
+                    "twitter"
+                )
             ) {
                 return "x";
             }
 
-
-            return "unknown";
         }
 
 
-        function escapeHTML(value) {
+        const url =
+            String(
+                item?.post_url || ""
+            ).toLowerCase();
 
-            return String(value ?? "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+
+        if (
+            url.includes(
+                "facebook.com"
+            ) ||
+            url.includes(
+                "fb.com"
+            )
+        ) {
+            return "facebook";
         }
 
 
-        function safeURL(value) {
+        if (
+            url.includes(
+                "instagram.com"
+            )
+        ) {
+            return "instagram";
+        }
+
+
+        if (
+            url.includes(
+                "x.com"
+            ) ||
+            url.includes(
+                "twitter.com"
+            )
+        ) {
+            return "x";
+        }
+
+
+        return "unknown";
+
+    }
+
+
+
+    function escapeHTML(value) {
+
+        return String(
+            value ?? ""
+        )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+    }
+
+
+
+    function safeURL(value) {
+
+        try {
+
+            const url =
+                new URL(
+                    String(value)
+                );
+
+
+            if (
+                url.protocol ===
+                    "http:" ||
+                url.protocol ===
+                    "https:"
+            ) {
+
+                return url.href;
+
+            }
+
+        } catch (error) {}
+
+
+        return "#";
+
+    }
+
+
+
+    async function extractPosts() {
+
+        const urls =
+            getInputUrls();
+
+
+        if (
+            urls.length === 0
+        ) {
+
+            showToast(
+                "أدخل رابطًا واحدًا على الأقل."
+            );
+
+            return;
+
+        }
+
+
+        extractBtn.disabled =
+            true;
+
+        copyBtn.disabled =
+            true;
+
+
+        status.innerHTML = `
+            <div class="loading">
+                <span class="spinner"></span>
+                جاري استخراج المنشورات...
+            </div>
+        `;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/extract",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                urls: urls
+                            })
+                    }
+                );
+
+
+            const responseText =
+                await response.text();
+
+
+            let data;
+
 
             try {
 
-                const url =
-                    new URL(
-                        String(value)
+                data =
+                    JSON.parse(
+                        responseText
                     );
 
-                if (
-                    url.protocol === "http:" ||
-                    url.protocol === "https:"
-                ) {
-                    return url.href;
-                }
+            } catch (error) {
 
-            } catch (error) {}
-
-            return "#";
-        }
-
-
-        async function extractPosts() {
-
-            const urls =
-                getInputUrls();
-
-
-            if (urls.length === 0) {
-
-                showToast(
-                    "أدخل رابطًا واحدًا على الأقل."
+                throw new Error(
+                    "الخادم أعاد استجابة غير صالحة."
                 );
 
-                return;
             }
 
 
-            extractBtn.disabled = true;
+            if (
+                !response.ok ||
+                !data.success
+            ) {
 
-            copyBtn.disabled = true;
+                throw new Error(
+                    data.error ||
+                    "حدث خطأ أثناء الاستخراج."
+                );
+
+            }
 
 
-            status.innerHTML = `
-                <div class="loading">
-                    <span class="spinner"></span>
-                    جاري استخراج المنشورات...
-                </div>
-            `;
+            allResults =
+                Array.isArray(
+                    data.results
+                )
+                    ? data.results
+                    : [];
+
+
+            resultsSection.style.display =
+                "block";
+
+
+            searchInput.value = "";
+
+
+            renderResults();
+
+
+            status.innerHTML =
+                `تم استخراج ${data.successful || 0} من أصل ${data.total || allResults.length} رابط.`;
+
+
+        } catch (error) {
+
+            allResults = [];
 
 
             resultsSection.style.display =
                 "none";
 
 
-            try {
+            status.innerHTML =
+                `<span style="color:#c62828;font-weight:700;">
+                    ❌ ${escapeHTML(
+                        error.message
+                    )}
+                </span>`;
 
-                const response =
-                    await fetch(
-                        "/extract",
-                        {
-                            method: "POST",
+        } finally {
 
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
+            extractBtn.disabled =
+                false;
 
-                            body: JSON.stringify({
-                                urls: urls
-                            })
-                        }
+        }
+
+    }
+
+
+
+    function getFilteredResults() {
+
+        const platform =
+            platformFilter.value;
+
+
+        const search =
+            searchInput.value
+                .trim()
+                .toLowerCase();
+
+
+        return allResults.filter(
+            item => {
+
+                const itemPlatform =
+                    detectPlatform(
+                        item
                     );
 
 
-                const responseText =
-                    await response.text();
+                if (
+                    platform !== "all" &&
+                    itemPlatform !==
+                        platform
+                ) {
 
+                    return false;
 
-                let data;
-
-
-                try {
-
-                    data =
-                        JSON.parse(
-                            responseText
-                        );
-
-                } catch (jsonError) {
-
-                    throw new Error(
-                        "الخادم أعاد استجابة غير صالحة."
-                    );
                 }
 
 
                 if (
-                    !response.ok ||
-                    !data.success
+                    search
                 ) {
 
-                    throw new Error(
-                        data.error ||
-                        "حدث خطأ أثناء الاستخراج."
-                    );
+                    const text =
+                        (
+                            String(
+                                item.page_name ||
+                                ""
+                            ) +
+                            " " +
+                            String(
+                                item.post_text ||
+                                ""
+                            )
+                        ).toLowerCase();
+
+
+                    if (
+                        !text.includes(
+                            search
+                        )
+                    ) {
+
+                        return false;
+
+                    }
+
                 }
 
 
-                allResults =
-                    Array.isArray(
-                        data.results
-                    )
-                        ? data.results
-                        : [];
-
-
-                renderResults();
-
-
-                resultsSection.style.display =
-                    "block";
-
-
-                status.innerHTML =
-                    `تم استخراج ${data.successful || 0} من أصل ${data.total || allResults.length} رابط.`;
-
-
-            } catch (error) {
-
-                status.innerHTML =
-                    `<span style="color:#c62828;font-weight:700;">
-                        ❌ ${escapeHTML(error.message)}
-                    </span>`;
-
-                allResults = [];
-
-                resultsList.innerHTML = "";
-
-                resultCount.textContent = "";
-
-                resultsSection.style.display =
-                    "none";
-
-            } finally {
-
-                extractBtn.disabled = false;
+                return true;
 
             }
+        );
+
+    }
+
+
+
+    function renderResults() {
+
+        const filteredResults =
+            getFilteredResults();
+
+
+        resultCount.textContent =
+            filteredResults.length;
+
+
+        if (
+            filteredResults.length === 0
+        ) {
+
+            resultsList.innerHTML = `
+                <div class="empty">
+                    لا توجد نتائج مطابقة للبحث أو الفلتر.
+                </div>
+            `;
+
+
+            copyBtn.disabled =
+                true;
+
+
+            return;
 
         }
 
 
-        function renderResults() {
-
-            const selectedPlatform =
-                platformFilter.value;
-
-
-            const filteredResults =
-                allResults.filter(item => {
-
-                    if (
-                        selectedPlatform === "all"
-                    ) {
-                        return true;
-                    }
-
-                    return (
-                        detectPlatform(item) ===
-                        selectedPlatform
-                    );
-
-                });
-
-
-            resultCount.textContent =
-                `(${filteredResults.length})`;
-
-
-            if (
-                filteredResults.length === 0
-            ) {
-
-                resultsList.innerHTML = `
-                    <div class="empty">
-                        لا توجد نتائج لهذه المنصة.
-                    </div>
-                `;
-
-                copyBtn.disabled = true;
-
-                return;
-            }
-
-
-            resultsList.innerHTML =
-                filteredResults.map(
-                    (item) => {
+        resultsList.innerHTML =
+            filteredResults
+                .map(
+                    item => {
 
                         const pageName =
                             escapeHTML(
@@ -834,7 +1613,9 @@
                             );
 
 
-                        if (item.error) {
+                        if (
+                            item.error
+                        ) {
 
                             return `
                                 <div class="result-card error-card">
@@ -850,7 +1631,9 @@
                                             ${pageName}
                                         </a>
 
-                                        <span class="colon">:</span>
+                                        <span class="colon">
+                                            :
+                                        </span>
 
                                         <span class="post-text">
                                             ${postText}
@@ -859,7 +1642,10 @@
                                     </div>
 
                                     <div class="error-text">
-                                        ⚠️ ${escapeHTML(item.error)}
+                                        ⚠️
+                                        ${escapeHTML(
+                                            item.error
+                                        )}
                                     </div>
 
                                 </div>
@@ -882,7 +1668,9 @@
                                         ${pageName}
                                     </a>
 
-                                    <span class="colon">:</span>
+                                    <span class="colon">
+                                        :
+                                    </span>
 
                                     <span class="post-text">
                                         ${postText}
@@ -894,174 +1682,170 @@
                         `;
 
                     }
-                ).join("");
+                )
+                .join("");
 
 
-            copyBtn.disabled = false;
+        copyBtn.disabled =
+            false;
+
+    }
+
+
+
+    async function copyResults() {
+
+        const filteredResults =
+            getFilteredResults();
+
+
+        if (
+            filteredResults.length === 0
+        ) {
+
+            showToast(
+                "لا توجد نتائج لنسخها."
+            );
+
+            return;
 
         }
 
 
-        async function copyResults() {
+        const text =
+            filteredResults
+                .map(
+                    item => {
 
-            const selectedPlatform =
-                platformFilter.value;
-
-
-            const filteredResults =
-                allResults.filter(item => {
-
-                    if (
-                        selectedPlatform === "all"
-                    ) {
-                        return true;
-                    }
-
-                    return (
-                        detectPlatform(item) ===
-                        selectedPlatform
-                    );
-
-                });
-
-
-            if (
-                filteredResults.length === 0
-            ) {
-
-                showToast(
-                    "لا توجد نتائج لنسخها."
-                );
-
-                return;
-            }
-
-
-            /*
-             * النسخ هنا للنتائج المستخرجة فقط.
-             * لا يتم نسخ روابط الإدخال.
-             *
-             * الشكل:
-             * اسم الصفحة: نص المنشور
-             */
-
-            const text =
-                filteredResults
-                    .map(item => {
-
-                        const pageName =
+                        const name =
                             item.page_name ||
                             "الحساب غير معروف";
 
-                        const postText =
+
+                        const post =
                             item.post_text ||
                             "";
 
+
                         return (
-                            pageName +
+                            name +
                             ": " +
-                            postText
+                            post
                         );
 
-                    })
-                    .join("\n\n");
+                    }
+                )
+                .join("\n\n");
+
+
+        try {
+
+            await navigator.clipboard
+                .writeText(
+                    text
+                );
+
+
+            showToast(
+                "✅ تم نسخ النتائج"
+            );
+
+        } catch (error) {
+
+            const temp =
+                document.createElement(
+                    "textarea"
+                );
+
+
+            temp.value =
+                text;
+
+
+            temp.style.position =
+                "fixed";
+
+
+            temp.style.opacity =
+                "0";
+
+
+            document.body.appendChild(
+                temp
+            );
+
+
+            temp.select();
 
 
             try {
 
-                await navigator.clipboard.writeText(
-                    text
+                document.execCommand(
+                    "copy"
                 );
+
 
                 showToast(
-                    "✅ تم نسخ النتائج بنجاح"
+                    "✅ تم نسخ النتائج"
                 );
 
-            } catch (error) {
+            } catch (copyError) {
 
-                /*
-                 * طريقة احتياطية للأجهزة
-                 * والمتصفحات التي تمنع Clipboard API.
-                 */
-
-                const temp =
-                    document.createElement(
-                        "textarea"
-                    );
-
-                temp.value = text;
-
-                temp.style.position =
-                    "fixed";
-
-                temp.style.opacity = "0";
-
-                document.body.appendChild(
-                    temp
-                );
-
-                temp.focus();
-
-                temp.select();
-
-                try {
-
-                    document.execCommand(
-                        "copy"
-                    );
-
-                    showToast(
-                        "✅ تم نسخ النتائج بنجاح"
-                    );
-
-                } catch (copyError) {
-
-                    showToast(
-                        "تعذر النسخ تلقائيًا."
-                    );
-
-                }
-
-                document.body.removeChild(
-                    temp
+                showToast(
+                    "تعذر نسخ النتائج."
                 );
 
             }
 
+
+            document.body.removeChild(
+                temp
+            );
+
         }
 
-
-        function showToast(message) {
-
-            const toast =
-                document.getElementById(
-                    "toast"
-                );
+    }
 
 
-            toast.textContent =
-                message;
 
+    function showToast(
+        message
+    ) {
 
-            toast.classList.add(
-                "show"
+        const toast =
+            document.getElementById(
+                "toast"
             );
 
 
-            setTimeout(() => {
+        toast.textContent =
+            message;
+
+
+        toast.classList.add(
+            "show"
+        );
+
+
+        setTimeout(
+            () => {
 
                 toast.classList.remove(
                     "show"
                 );
 
-            }, 2500);
+            },
+            2500
+        );
 
-        }
+    }
 
 
-        updateLinkCount();
 
-    </script>
+    updateLinkCount();
+
+</script>
+
 
 </body>
 
