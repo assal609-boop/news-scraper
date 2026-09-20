@@ -1,307 +1,145 @@
 import os
-import re
-from urllib.parse import urlparse
-
 import requests
-from flask import Flask, jsonify, render_template, request
 
-print("APP FILE LOADED")
+from flask import Flask, render_template, request, jsonify
+
 
 app = Flask(__name__)
 
-REFETCHER_URL = "https://api.refetcher.com/"
+
 REFETCHER_API_KEY = os.environ.get("REFETCHER_API_KEY", "").strip()
-
-SUPPORTED_PLATFORMS = {
-    "facebook.com": "Facebook",
-    "www.facebook.com": "Facebook",
-    "m.facebook.com": "Facebook",
-    "instagram.com": "Instagram",
-    "www.instagram.com": "Instagram",
-    "x.com": "X / Twitter",
-    "www.x.com": "X / Twitter",
-    "twitter.com": "X / Twitter",
-    "www.twitter.com": "X / Twitter",
-}
-
-
-def clean_url(url):
-    if not isinstance(url, str):
-        return ""
-
-    url = url.strip()
-
-    if not url:
-        return ""
-
-    if not re.match(r"^https?://", url, re.IGNORECASE):
-        url = "https://" + url
-
-    return url
+REFETCHER_URL = "https://api.refetcher.com/"
 
 
 def detect_platform(url):
-    try:
-        parsed = urlparse(url)
-        host = parsed.netloc.lower()
+    url = str(url).lower()
 
-        if host in SUPPORTED_PLATFORMS:
-            return SUPPORTED_PLATFORMS[host]
+    if "facebook.com" in url or "fb.com" in url:
+        return "facebook"
 
-        if host.startswith("www."):
-            host = host[4:]
+    if "instagram.com" in url:
+        return "instagram"
 
-        return SUPPORTED_PLATFORMS.get(host)
+    if "x.com" in url or "twitter.com" in url:
+        return "x"
 
-    except Exception:
-        return None
+    return "unknown"
 
 
-def get_value(data, *keys):
-    if not isinstance(data, dict):
-        return None
+def text_value(value):
+    if value is None:
+        return ""
 
-    for key in keys:
-        value = data.get(key)
+    if isinstance(value, str):
+        return value.strip()
 
-        if value is not None and str(value).strip():
-            return value
-
-    return None
+    return str(value).strip()
 
 
-def extract_author_name(item):
-    author = item.get("author")
+def parse_result(result, original_url):
+    """
+    تحويل نتيجة Refetcher إلى الشكل الذي يفهمه الموقع.
+    """
 
-    if isinstance(author, dict):
-        name = get_value(
-            author,
-            "name",
-            "displayName",
-            "fullName",
-            "username",
-            "handle"
-        )
-
-        if name:
-            return str(name).strip()
-
-    profile = item.get("profile")
-
-    if isinstance(profile, dict):
-        name = get_value(
-            profile,
-            "name",
-            "displayName",
-            "fullName",
-            "username",
-            "handle"
-        )
-
-        if name:
-            return str(name).strip()
-
-    name = get_value(
-        item,
-        "authorName",
-        "pageName",
-        "accountName",
-        "username",
-        "handle"
+    platform = (
+        result.get("platform")
+        or detect_platform(original_url)
     )
 
-    if name:
-        return str(name).strip()
+    post = result.get("post") or {}
+    author = result.get("author") or {}
+    profile = result.get("profile") or {}
 
-    return "الحساب غير معروف"
+    page_name = ""
 
+    for value in [
+        author.get("name"),
+        author.get("displayName"),
+        author.get("username"),
+        author.get("handle"),
+        profile.get("name"),
+        profile.get("username"),
+        profile.get("handle"),
+    ]:
+        if value:
+            page_name = text_value(value)
+            break
 
-def extract_post_text(item):
-    post = item.get("post")
+    post_text = ""
 
-    if isinstance(post, dict):
-        text = get_value(
-            post,
-            "caption",
-            "description",
-            "text",
-            "content",
-            "title"
-        )
+    for value in [
+        post.get("caption"),
+        post.get("text"),
+        post.get("description"),
+        result.get("caption"),
+        result.get("text"),
+    ]:
+        if value:
+            post_text = text_value(value)
+            break
 
-        if text:
-            return str(text).strip()
-
-    text = get_value(
-        item,
-        "caption",
-        "description",
-        "text",
-        "content",
-        "title"
+    post_url = (
+        post.get("normalizedUrl")
+        or post.get("url")
+        or result.get("url")
+        or original_url
     )
 
-    if text:
-        return str(text).strip()
+    return {
+        "page_name": page_name or "الحساب غير معروف",
+        "post_text": post_text or "لا يوجد نص منشور ظاهر.",
+        "post_url": post_url or original_url,
+        "platform": platform,
+        "error": None
+    }
 
-    return ""
 
+def parse_error_result(original_url, platform, error_data):
+    """
+    تحويل خطأ Refetcher إلى نتيجة لا تكسر بقية النتائج.
+    """
 
-def extract_post_url(item, original_url):
-    post = item.get("post")
+    if isinstance(error_data, dict):
 
-    if isinstance(post, dict):
-        url = get_value(
-            post,
-            "normalizedUrl",
-            "url",
-            "canonicalUrl",
-            "permalink"
+        category = error_data.get(
+            "category",
+            "scrape_error"
         )
 
-        if url:
-            return str(url).strip()
+        message = error_data.get(
+            "message",
+            "تعذر استخراج هذا الرابط."
+        )
 
-    url = get_value(
-        item,
-        "normalizedUrl",
-        "url",
-        "canonicalUrl",
-        "permalink"
-    )
-
-    if url:
-        return str(url).strip()
-
-    return original_url
-
-
-def normalize_results(data, original_urls):
-    if isinstance(data, dict):
-        if isinstance(data.get("results"), list):
-            items = data["results"]
-        elif isinstance(data.get("data"), list):
-            items = data["data"]
-        elif isinstance(data.get("items"), list):
-            items = data["items"]
-        else:
-            items = [data]
-
-    elif isinstance(data, list):
-        items = data
+        error_text = f"{category}: {message}"
 
     else:
-        items = []
 
-    results = []
+        error_text = text_value(
+            error_data
+        ) or "تعذر استخراج هذا الرابط."
 
-    for index, item in enumerate(items):
-        if not isinstance(item, dict):
-            continue
-
-        original_url = ""
-
-        if index < len(original_urls):
-            original_url = original_urls[index]
-
-        platform = detect_platform(original_url)
-
-        if not platform:
-            platform = str(
-                get_value(item, "platform", "source")
-                or "Unknown"
-            )
-
-        page_name = extract_author_name(item)
-        post_text = extract_post_text(item)
-        post_url = extract_post_url(item, original_url)
-
-        error = item.get("error")
-
-        if error:
-            error_text = str(error)
-        else:
-            error_text = ""
-
-        results.append(
-            {
-                "page_name": page_name,
-                "post_text": post_text,
-                "post_url": post_url,
-                "platform": platform,
-                "has_text": bool(post_text),
-                "error": error_text
-            }
-        )
-
-    return results
+    return {
+        "page_name": "تعذر استخراج الرابط",
+        "post_text": "",
+        "post_url": original_url,
+        "platform": platform,
+        "error": error_text
+    }
 
 
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-
-@app.route("/extract", methods=["POST"])
-def extract():
-    if not REFETCHER_API_KEY:
-        return jsonify(
-            {
-                "success": False,
-                "error": "REFETCHER_API_KEY غير موجود في إعدادات Render."
-            }
-        ), 500
-
-    data = request.get_json(silent=True) or {}
-
-    urls = data.get("urls", [])
-
-    if isinstance(urls, str):
-        urls = urls.splitlines()
-
-    if not isinstance(urls, list):
-        return jsonify(
-            {
-                "success": False,
-                "error": "صيغة الروابط غير صحيحة."
-            }
-        ), 400
-
-    cleaned_urls = []
-
-    for url in urls:
-        url = clean_url(url)
-
-        if not url:
-            continue
-
-        platform = detect_platform(url)
-
-        if platform:
-            cleaned_urls.append(url)
-
-    if not cleaned_urls:
-        return jsonify(
-            {
-                "success": False,
-                "error": "لم يتم العثور على روابط Facebook أو Instagram أو X صحيحة."
-            }
-        ), 400
-
-    if len(cleaned_urls) > 50:
-        cleaned_urls = cleaned_urls[:50]
+def request_refetcher(payload):
+    """
+    إرسال طلب إلى Refetcher.
+    """
 
     headers = {
         "X-API-Key": REFETCHER_API_KEY,
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    }
-
-    payload = {
-        "urls": cleaned_urls
+        "Content-Type": "application/json"
     }
 
     try:
+
         response = requests.post(
             REFETCHER_URL,
             headers=headers,
@@ -309,81 +147,370 @@ def extract():
             timeout=90
         )
 
-        response.raise_for_status()
+    except requests.RequestException as error:
 
-        try:
-            response_data = response.json()
+        return {
+            "ok": False,
+            "status": 0,
+            "data": None,
+            "error": str(error)
+        }
 
-        except ValueError:
-            return jsonify(
-                {
-                    "success": False,
-                    "error": "الخدمة أعادت استجابة غير صالحة."
-                }
-            ), 502
+    try:
 
-        results = normalize_results(
-            response_data,
-            cleaned_urls
+        data = response.json()
+
+    except ValueError:
+
+        return {
+            "ok": False,
+            "status": response.status_code,
+            "data": None,
+            "error": "الخدمة أعادت استجابة غير صالحة."
+        }
+
+    return {
+        "ok": response.ok,
+        "status": response.status_code,
+        "data": data,
+        "error": None
+    }
+
+
+def result_for_url(result, original_url):
+    """
+    معالجة نتيجة رابط واحد.
+    """
+
+    platform = detect_platform(original_url)
+
+    if not isinstance(result, dict):
+
+        return {
+            "page_name": "خطأ",
+            "post_text": "",
+            "post_url": original_url,
+            "platform": platform,
+            "error": "نتيجة غير مفهومة من خدمة الاستخراج."
+        }
+
+    if result.get("success") is False:
+
+        return parse_error_result(
+            original_url,
+            result.get("platform") or platform,
+            result.get("error")
         )
 
-        return jsonify(
-            {
-                "success": True,
-                "results": results
-            }
+    return parse_result(
+        result,
+        original_url
+    )
+
+
+def extract_batch(urls):
+    """
+    الطريقة الأساسية:
+    إرسال جميع الروابط دفعة واحدة.
+    """
+
+    response = request_refetcher({
+        "urls": urls
+    })
+
+    return response
+
+
+def extract_single(url):
+    """
+    محاولة ثانية للرابط بشكل منفرد.
+    """
+
+    return request_refetcher({
+        "url": url
+    })
+
+
+def scrape_urls(urls):
+    """
+    استخراج آمن:
+
+    1. نحاول Batch.
+    2. إذا نجح، نقرأ كل نتيجة.
+    3. إذا رفضت الخدمة الطلب بالكامل،
+       نجرب كل رابط منفردًا.
+    """
+
+    final_results = []
+
+    batch = extract_batch(urls)
+
+    # -----------------------------------
+    # الحالة الطبيعية: Refetcher أعاد 200
+    # -----------------------------------
+
+    if batch["ok"]:
+
+        data = batch["data"] or {}
+
+        results = data.get("results") or []
+
+        results_by_url = {}
+
+        for result in results:
+
+            if not isinstance(result, dict):
+                continue
+
+            result_url = result.get("url")
+
+            if result_url:
+                results_by_url[
+                    result_url.rstrip("/")
+                ] = result
+
+        for original_url in urls:
+
+            result = results_by_url.get(
+                original_url.rstrip("/")
+            )
+
+            if result is not None:
+
+                final_results.append(
+                    result_for_url(
+                        result,
+                        original_url
+                    )
+                )
+
+            else:
+
+                # النتيجة غير موجودة في الرد
+                # نجرب الرابط منفردًا
+                single = extract_single(
+                    original_url
+                )
+
+                if single["ok"]:
+
+                    single_data = (
+                        single["data"] or {}
+                    )
+
+                    single_results = (
+                        single_data.get("results")
+                        or []
+                    )
+
+                    if single_results:
+
+                        final_results.append(
+                            result_for_url(
+                                single_results[0],
+                                original_url
+                            )
+                        )
+
+                    else:
+
+                        final_results.append({
+                            "page_name": "لا توجد نتيجة",
+                            "post_text": "",
+                            "post_url": original_url,
+                            "platform": detect_platform(
+                                original_url
+                            ),
+                            "error":
+                                "لم ترجع الخدمة نتيجة لهذا الرابط."
+                        })
+
+                else:
+
+                    error_data = (
+                        (single["data"] or {})
+                        if single["data"]
+                        else {}
+                    )
+
+                    final_results.append(
+                        parse_error_result(
+                            original_url,
+                            detect_platform(
+                                original_url
+                            ),
+                            error_data.get(
+                                "error",
+                                single["error"]
+                            )
+                        )
+                    )
+
+        return final_results
+
+
+    # -----------------------------------
+    # إذا رفض Refetcher الدفعة كلها
+    # -----------------------------------
+
+    for url in urls:
+
+        single = extract_single(url)
+
+        if single["ok"]:
+
+            data = single["data"] or {}
+
+            results = data.get("results") or []
+
+            if results:
+
+                final_results.append(
+                    result_for_url(
+                        results[0],
+                        url
+                    )
+                )
+
+            else:
+
+                final_results.append({
+                    "page_name": "لا توجد نتيجة",
+                    "post_text": "",
+                    "post_url": url,
+                    "platform": detect_platform(url),
+                    "error":
+                        "لم ترجع الخدمة نتيجة لهذا الرابط."
+                })
+
+        else:
+
+            data = single["data"] or {}
+
+            final_results.append(
+                parse_error_result(
+                    url,
+                    detect_platform(url),
+                    data.get(
+                        "error",
+                        single["error"]
+                    )
+                )
+            )
+
+    return final_results
+
+
+@app.route("/")
+def home():
+
+    return render_template(
+        "index.html"
+    )
+
+
+@app.route(
+    "/extract",
+    methods=["POST"]
+)
+def extract():
+
+    try:
+
+        data = request.get_json(
+            silent=True
+        ) or {}
+
+        urls = data.get(
+            "urls",
+            []
         )
 
-    except requests.exceptions.Timeout:
-        return jsonify(
-            {
+        if not isinstance(urls, list):
+
+            return jsonify({
                 "success": False,
-                "error": "انتهت مهلة الاتصال بالخدمة. حاول مرة أخرى."
-            }
-        ), 504
+                "error":
+                    "صيغة الروابط غير صحيحة."
+            }), 400
 
-    except requests.exceptions.HTTPError:
-        try:
-            error_data = response.json()
+        clean_urls = []
 
-            error_message = (
-                error_data.get("error")
-                or error_data.get("message")
-                or "حدث خطأ من خدمة الاستخراج."
-            )
+        for url in urls:
 
-        except Exception:
-            error_message = (
-                "حدث خطأ من خدمة الاستخراج. "
-                f"رمز الخطأ: {response.status_code}"
-            )
+            if not isinstance(
+                url,
+                str
+            ):
+                continue
 
-        return jsonify(
-            {
+            url = url.strip()
+
+            if url:
+                clean_urls.append(url)
+
+        if not clean_urls:
+
+            return jsonify({
                 "success": False,
-                "error": str(error_message)
-            }
-        ), 502
+                "error":
+                    "أدخل رابطًا واحدًا على الأقل."
+            }), 400
 
-    except requests.exceptions.RequestException as exc:
-        return jsonify(
-            {
-                "success": False,
-                "error": f"تعذر الاتصال بخدمة الاستخراج: {str(exc)}"
-            }
-        ), 502
+        if len(clean_urls) > 50:
 
-    except Exception as exc:
-        return jsonify(
-            {
+            return jsonify({
                 "success": False,
-                "error": f"حدث خطأ غير متوقع: {str(exc)}"
-            }
-        ), 500
+                "error":
+                    "الحد الأقصى 50 رابطًا."
+            }), 400
+
+        if not REFETCHER_API_KEY:
+
+            return jsonify({
+                "success": False,
+                "error":
+                    "REFETCHER_API_KEY غير موجود."
+            }), 500
+
+        results = scrape_urls(
+            clean_urls
+        )
+
+        successful = sum(
+            1
+            for item in results
+            if not item.get("error")
+        )
+
+        failed = len(results) - successful
+
+        return jsonify({
+            "success": True,
+            "total": len(results),
+            "successful": successful,
+            "failed": failed,
+            "results": results
+        })
+
+    except Exception as error:
+
+        return jsonify({
+            "success": False,
+            "error":
+                "حدث خطأ داخلي: "
+                + str(error)
+        }), 500
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+
+    port = int(
+        os.environ.get(
+            "PORT",
+            5000
+        )
+    )
 
     app.run(
         host="0.0.0.0",
