@@ -4,8 +4,7 @@ from urllib.parse import urlparse
 import requests
 from flask import Flask, jsonify, render_template, request
 
-app = Flask(**name**)
-
+app = Flask(__name__)
 REFETCHER_API_KEY = os.environ.get("REFETCHER_API_KEY", "").strip()
 REFETCHER_URL = "https://api.refetcher.com/"
 
