@@ -6,13 +6,12 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-
 REFETCHER_API_KEY = os.environ.get("REFETCHER_API_KEY", "").strip()
 REFETCHER_URL = "https://api.refetcher.com/"
 
 
 def detect_platform(url):
-    url = str(url).lower()
+    url = str(url).lower().strip()
 
     if "facebook.com" in url or "fb.com" in url:
         return "facebook"
@@ -26,12 +25,12 @@ def detect_platform(url):
     return "unknown"
 
 
-def get_error_message(data, fallback):
+def error_message(data, fallback):
     if isinstance(data, dict):
         error = data.get("error")
 
         if isinstance(error, dict):
-            return error.get("message", fallback)
+            return str(error.get("message", fallback))
 
         if error:
             return str(error)
@@ -42,7 +41,7 @@ def get_error_message(data, fallback):
     return fallback
 
 
-def parse_refetcher_result(result, original_url):
+def make_result(result, original_url):
 
     platform = (
         result.get("platform")
@@ -84,30 +83,26 @@ def parse_refetcher_result(result, original_url):
     }
 
 
-def scrape_one(url):
+def extract_one(url):
 
     platform = detect_platform(url)
 
     if platform == "unknown":
-
         return {
             "page_name": "رابط غير مدعوم",
             "post_text": "",
             "post_url": url,
             "platform": "unknown",
-            "error":
-                "الرابط يجب أن يكون Facebook أو Instagram أو X."
+            "error": "الرابط يجب أن يكون Facebook أو Instagram أو X."
         }
 
     if not REFETCHER_API_KEY:
-
         return {
             "page_name": "خطأ في إعداد الموقع",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error":
-                "REFETCHER_API_KEY غير موجود في Render."
+            "error": "REFETCHER_API_KEY غير موجود في Render."
         }
 
     headers = {
@@ -116,12 +111,13 @@ def scrape_one(url):
         "Accept": "application/json"
     }
 
+    # نرسل الرابط نفسه كما أدخله المستخدم
+    # حتى تعمل روابط share وروابط المتصفح العادية
     payload = {
-        "urls": [url]
+        "url": url
     }
 
     try:
-
         response = requests.post(
             REFETCHER_URL,
             headers=headers,
@@ -129,106 +125,94 @@ def scrape_one(url):
             timeout=90
         )
 
-    except requests.RequestException as error:
-
+    except requests.RequestException as e:
         return {
             "page_name": "تعذر الاتصال",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error":
-                "تعذر الاتصال بخدمة الاستخراج."
-        }
-
-    # لا نفترض أن الرد JSON
-    content_type = response.headers.get(
-        "Content-Type",
-        ""
-    ).lower()
-
-    if "application/json" not in content_type:
-
-        return {
-            "page_name": "خطأ من خدمة الاستخراج",
-            "post_text": "",
-            "post_url": url,
-            "platform": platform,
-            "error":
-                "الخدمة أعادت صفحة غير JSON. "
-                "رمز الاستجابة: "
-                + str(response.status_code)
+            "error": "تعذر الاتصال بخدمة الاستخراج."
         }
 
     try:
-
         data = response.json()
-
     except ValueError:
-
         return {
             "page_name": "خطأ من خدمة الاستخراج",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error":
-                "الخدمة أعادت استجابة غير صالحة."
+            "error": (
+                "خدمة الاستخراج أعادت استجابة غير صالحة. "
+                "رمز الاستجابة: "
+                + str(response.status_code)
+            )
         }
 
     if not response.ok:
-
         return {
             "page_name": "تعذر استخراج الرابط",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error":
-                get_error_message(
-                    data,
-                    "فشل استخراج الرابط."
-                )
+            "error": error_message(
+                data,
+                "فشل استخراج الرابط."
+            )
         }
 
-    results = data.get("results") or []
+    # بعض استجابات الخدمة تكون مباشرة
+    # وبعضها تكون داخل results
+    if isinstance(data, dict):
 
-    if not results:
+        if isinstance(data.get("results"), list):
+            results = data.get("results")
 
-        return {
-            "page_name": "لا توجد نتيجة",
-            "post_text": "",
-            "post_url": url,
-            "platform": platform,
-            "error":
-                "لم تُرجع الخدمة بيانات لهذا الرابط."
-        }
+            if len(results) == 0:
+                return {
+                    "page_name": "لا توجد نتيجة",
+                    "post_text": "",
+                    "post_url": url,
+                    "platform": platform,
+                    "error": "لم تُرجع الخدمة بيانات لهذا الرابط."
+                }
 
-    result = results[0]
+            result = results[0]
 
-    if not isinstance(result, dict):
+        else:
+            result = data
 
+    else:
         return {
             "page_name": "خطأ في البيانات",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error":
-                "صيغة النتيجة غير صحيحة."
+            "error": "صيغة النتيجة غير صحيحة."
+        }
+
+    if not isinstance(result, dict):
+        return {
+            "page_name": "خطأ في البيانات",
+            "post_text": "",
+            "post_url": url,
+            "platform": platform,
+            "error": "صيغة النتيجة غير صحيحة."
         }
 
     if result.get("success") is False:
-
         return {
             "page_name": "تعذر استخراج المنشور",
             "post_text": "",
             "post_url": url,
             "platform": platform,
-            "error":
-                get_error_message(
-                    result,
-                    "تعذر استخراج المنشور."
-                )
+            "error": error_message(
+                result,
+                "تعذر استخراج المنشور."
+            )
         }
 
-    return parse_refetcher_result(
+    return make_result(
         result,
         url
     )
@@ -249,21 +233,17 @@ def extract():
         )
 
         if not isinstance(data, dict):
-
             return jsonify({
                 "success": False,
-                "error":
-                    "بيانات الطلب غير صحيحة."
+                "error": "بيانات الطلب غير صحيحة."
             }), 400
 
         urls = data.get("urls")
 
         if not isinstance(urls, list):
-
             return jsonify({
                 "success": False,
-                "error":
-                    "لم يتم إرسال قائمة الروابط."
+                "error": "لم يتم إرسال قائمة الروابط."
             }), 400
 
         urls = [
@@ -273,36 +253,34 @@ def extract():
         ]
 
         if not urls:
-
             return jsonify({
                 "success": False,
-                "error":
-                    "أدخل رابطًا واحدًا على الأقل."
+                "error": "أدخل رابطًا واحدًا على الأقل."
             }), 400
 
         if len(urls) > 50:
-
             return jsonify({
                 "success": False,
-                "error":
-                    "الحد الأقصى 50 رابطًا."
+                "error": "الحد الأقصى 50 رابطًا."
             }), 400
 
-        # كل رابط بشكل منفصل
-        # حتى لا يؤثر رابط على رابط آخر
+        if not REFETCHER_API_KEY:
+            return jsonify({
+                "success": False,
+                "error": "REFETCHER_API_KEY غير موجود في Render."
+            }), 500
 
         results = []
 
         for url in urls:
-
-            result = scrape_one(url)
-
-            results.append(result)
+            results.append(
+                extract_one(url)
+            )
 
         successful = sum(
             1
-            for result in results
-            if not result.get("error")
+            for item in results
+            if not item.get("error")
         )
 
         failed = len(results) - successful
@@ -315,23 +293,16 @@ def extract():
             "results": results
         })
 
-    except Exception as error:
-
-        # مهم جدًا:
-        # حتى لو حدث خطأ داخلي،
-        # نرجع JSON وليس صفحة HTML
+    except Exception as e:
 
         return jsonify({
             "success": False,
-            "error":
-                "خطأ داخلي في السيرفر: "
-                + str(error)
+            "error": "خطأ داخلي في السيرفر: " + str(e)
         }), 500
 
 
 @app.errorhandler(404)
 def not_found(error):
-
     return jsonify({
         "success": False,
         "error": "المسار غير موجود."
@@ -340,7 +311,6 @@ def not_found(error):
 
 @app.errorhandler(405)
 def method_not_allowed(error):
-
     return jsonify({
         "success": False,
         "error": "طريقة الطلب غير مسموحة."
@@ -349,7 +319,6 @@ def method_not_allowed(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-
     return jsonify({
         "success": False,
         "error": "حدث خطأ داخلي في السيرفر."
