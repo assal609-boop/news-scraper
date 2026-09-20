@@ -105,28 +105,33 @@ def extract():
         api_results = api_data.get("results", [])
         results = []
 
-        # خريطة مؤقتة لنتائج الـ API للوصول السريع
         api_dict = {item.get("url"): item for item in api_results}
 
         for original_url in valid_urls:
             platform = detect_platform(original_url)
             item = api_dict.get(original_url, {})
             
-            # استخراج البيانات إن وجدت، أو وضع قيم افتراضية آمنة لضمان عدم توقف العمل
             post = item.get("post") or {}
             author = item.get("author") or {}
 
+            # استخراج اسم الحساب الصريح بدقة
             page_name = (
                 author.get("name")
                 or author.get("handle")
-                or f"منشور {platform}"
+                or author.get("username")
+                or f"صفحة {platform}"
             )
 
+            # استخراج النص الصريح للمنشور بدقة
             post_text = (
                 post.get("caption")
                 or post.get("text")
-                or "تم استخراج الرابط بنجاح (يرجى مراجعة النص إن لم يظهر تلقائياً)."
+                or post.get("content")
+                or ""
             ).strip()
+
+            if not post_text:
+                post_text = "النص الصريح غير متوفر أو أن المنشور محمي"
 
             results.append({
                 "success": True,
