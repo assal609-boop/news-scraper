@@ -1,12 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>📱 تفريغ منشورات السوشيال ميديا</title>
 
@@ -97,18 +95,6 @@
             flex-wrap: wrap;
         }
 
-        select {
-            flex: 1;
-            min-width: 200px;
-            padding: 14px;
-            border: 2px solid #e3e5f2;
-            border-radius: 14px;
-            background: white;
-            font-size: 15px;
-            font-family: inherit;
-            outline: none;
-        }
-
         button {
             border: none;
             border-radius: 14px;
@@ -120,6 +106,7 @@
             background: #5c63d8;
             color: white;
             transition: 0.2s;
+            width: 100%;
         }
 
         button:hover {
@@ -148,10 +135,6 @@
         }
 
         .results-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
             margin-bottom: 18px;
         }
 
@@ -159,15 +142,6 @@
             margin: 0;
             color: #252a5c;
             font-size: 21px;
-        }
-
-        .count {
-            background: #eef0ff;
-            color: #535ac7;
-            padding: 7px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: bold;
         }
 
         .result-item {
@@ -202,16 +176,6 @@
         .post-text {
             color: #222;
             white-space: pre-wrap;
-        }
-
-        .platform {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 4px 9px;
-            border-radius: 8px;
-            background: #f1f2f7;
-            color: #666;
-            font-size: 12px;
         }
 
         .error-message {
@@ -261,29 +225,19 @@
                 min-height: 160px;
             }
 
-            .controls {
-                flex-direction: column;
-            }
-
-            select,
-            button {
-                width: 100%;
-            }
-
             .result-line {
                 font-size: 15px;
             }
+
         }
 
     </style>
 </head>
 
-
 <body>
 
 <div class="container">
 
-    <!-- Header -->
     <div class="header">
 
         <div class="header-icon">
@@ -301,7 +255,6 @@
     </div>
 
 
-    <!-- Input -->
     <div class="card">
 
         <label for="urls">
@@ -315,56 +268,24 @@
 مثال:
 https://www.facebook.com/...
 https://www.instagram.com/...
-https://x.com/..."
-        ></textarea>
+https://x.com/..."></textarea>
 
 
         <div class="controls">
 
-            <select id="platformFilter">
-
-                <option value="all">
-                    جميع المنصات
-                </option>
-
-                <option value="Facebook">
-                    Facebook
-                </option>
-
-                <option value="Instagram">
-                    Instagram
-                </option>
-
-                <option value="X / Twitter">
-                    X / Twitter
-                </option>
-
-            </select>
-
-
-            <button
-                id="extractButton"
-                onclick="extractPosts()">
-
+            <button id="extractButton" onclick="extractPosts()">
                 🚀 استخراج المنشورات
-
             </button>
 
         </div>
 
 
-        <div
-            id="status"
-            class="status">
-        </div>
+        <div id="status" class="status"></div>
 
     </div>
 
 
-    <!-- Results -->
-    <div
-        id="resultsCard"
-        class="card results-card">
+    <div id="resultsCard" class="card results-card">
 
         <div class="results-title">
 
@@ -372,14 +293,7 @@ https://x.com/..."
                 📋 النتائج
             </h2>
 
-            <span
-                id="resultCount"
-                class="count">
-                0
-            </span>
-
         </div>
-
 
         <div id="results"></div>
 
@@ -395,481 +309,241 @@ https://x.com/..."
 
 <script>
 
-    const urlsInput =
-        document.getElementById("urls");
+const urlsInput = document.getElementById("urls");
 
-    const filter =
-        document.getElementById("platformFilter");
+const button = document.getElementById("extractButton");
 
-    const button =
-        document.getElementById("extractButton");
+const statusBox = document.getElementById("status");
 
-    const statusBox =
-        document.getElementById("status");
+const resultsCard = document.getElementById("resultsCard");
 
-    const resultsCard =
-        document.getElementById("resultsCard");
-
-    const resultsBox =
-        document.getElementById("results");
-
-    const resultCount =
-        document.getElementById("resultCount");
+const resultsBox = document.getElementById("results");
 
 
-    // -----------------------------------------
-    // حماية النص من HTML
-    // -----------------------------------------
-    function escapeHTML(value) {
+function escapeHTML(value) {
 
-        if (value === null || value === undefined) {
-            return "";
-        }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+    if (value === null || value === undefined) {
+        return "";
     }
 
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
-    // -----------------------------------------
-    // تنظيف الرابط قبل عرضه
-    // -----------------------------------------
-    function safeURL(url) {
 
-        if (!url) {
-            return "#";
-        }
+function safeURL(url) {
 
-        const value = String(url).trim();
-
-        if (
-            value.startsWith("https://") ||
-            value.startsWith("http://")
-        ) {
-            return value;
-        }
-
+    if (!url) {
         return "#";
     }
 
+    const value = String(url).trim();
 
-    // -----------------------------------------
-    // استخراج المنشورات
-    // -----------------------------------------
-    async function extractPosts() {
+    if (
+        value.startsWith("https://") ||
+        value.startsWith("http://")
+    ) {
+        return value;
+    }
 
-        const rawText =
-            urlsInput.value.trim();
-
-        if (!rawText) {
-
-            showStatus(
-                "⚠️ أدخل رابطًا واحدًا على الأقل.",
-                true
-            );
-
-            return;
-        }
+    return "#";
+}
 
 
-        const urls = rawText
-            .split(/\r?\n/)
-            .map(url => url.trim())
-            .filter(Boolean);
+async function extractPosts() {
 
+    const rawText = urlsInput.value.trim();
 
-        button.disabled = true;
-
-        button.textContent =
-            "⏳ جاري الاستخراج...";
-
+    if (!rawText) {
 
         showStatus(
-            "⏳ جاري استخراج المنشورات، يرجى الانتظار..."
+            "⚠️ أدخل رابطًا واحدًا على الأقل.",
+            true
         );
 
-
-        resultsCard.style.display =
-            "none";
-
-        resultsBox.innerHTML = "";
-
-
-        try {
-
-            const response =
-                await fetch("/extract", {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        urls: urls
-                    })
-
-                });
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok || !data.success) {
-
-                throw new Error(
-                    data.error ||
-                    "حدث خطأ أثناء استخراج المنشورات."
-                );
-            }
-
-
-            renderResults(
-                data.results || []
-            );
-
-
-            hideStatus();
-
-
-        } catch (error) {
-
-            showStatus(
-                "❌ " +
-                (error.message ||
-                 "حدث خطأ غير متوقع."),
-                true
-            );
-
-        } finally {
-
-            button.disabled = false;
-
-            button.textContent =
-                "🚀 استخراج المنشورات";
-        }
+        return;
     }
 
 
-    // -----------------------------------------
-    // عرض النتائج
-    // -----------------------------------------
-    function renderResults(items) {
-
-        const selectedPlatform =
-            filter.value;
+    const urls = rawText
+        .split(/\r?\n/)
+        .map(url => url.trim())
+        .filter(Boolean);
 
 
-        let filtered =
-            items.filter(item => {
+    button.disabled = true;
 
-                if (selectedPlatform === "all") {
-                    return true;
-                }
-
-                return item.platform ===
-                    selectedPlatform;
-            });
+    button.textContent = "⏳ جاري الاستخراج...";
 
 
-        resultCount.textContent =
-            filtered.length;
-
-
-        resultsCard.style.display =
-            "block";
-
-
-        if (!filtered.length) {
-
-            resultsBox.innerHTML = `
-                <div class="empty">
-                    لا توجد نتائج لعرضها.
-                </div>
-            `;
-
-            return;
-        }
-
-
-        resultsBox.innerHTML =
-            filtered.map(item => {
-
-                const pageName =
-                    escapeHTML(
-                        item.page_name ||
-                        "الحساب غير معروف"
-                    );
-
-
-                const postText =
-                    escapeHTML(
-                        item.post_text ||
-                        "لا يوجد نص منشور ظاهر."
-                    );
-
-
-                const postURL =
-                    safeURL(
-                        item.post_url
-                    );
-
-
-                const platform =
-                    escapeHTML(
-                        item.platform ||
-                        ""
-                    );
-
-
-                let errorHTML = "";
-
-
-                if (item.error) {
-
-                    errorHTML = `
-                        <div class="error-message">
-                            ⚠️ ${escapeHTML(item.error)}
-                        </div>
-                    `;
-                }
-
-
-                return `
-                    <div class="result-item">
-
-                        <div class="result-line">
-
-                            <a
-                                class="page-link"
-                                href="${postURL}"
-                                target="_blank"
-                                rel="noopener noreferrer">
-
-                                ${pageName}
-
-                            </a>
-
-                            :
-
-                            <span class="post-text">
-                                ${postText}
-                            </span>
-
-                        </div>
-
-
-                        <span class="platform">
-                            ${platform}
-                        </span>
-
-                        ${errorHTML}
-
-                    </div>
-                `;
-
-            }).join("");
-    }
-
-
-    // -----------------------------------------
-    // الفلتر
-    // -----------------------------------------
-    filter.addEventListener(
-        "change",
-        function() {
-
-            const currentResults =
-                window.lastResults || [];
-
-            renderResults(
-                currentResults
-            );
-
-        }
+    showStatus(
+        "⏳ جاري استخراج المنشورات، يرجى الانتظار..."
     );
 
 
-    // حفظ النتائج للفلترة
-    const originalRenderResults =
-        renderResults;
+    resultsCard.style.display = "none";
+
+    resultsBox.innerHTML = "";
 
 
-    window.lastResults = [];
+    try {
+
+        const response = await fetch("/extract", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                urls: urls
+            })
+
+        });
 
 
-    function saveResults(items) {
-
-        window.lastResults =
-            items || [];
-
-        originalRenderResults(
-            window.lastResults
-        );
-    }
+        const data = await response.json();
 
 
-    // -----------------------------------------
-    // Status
-    // -----------------------------------------
-    function showStatus(
-        message,
-        isError = false
-    ) {
+        if (!response.ok || !data.success) {
 
-        statusBox.textContent =
-            message;
-
-        statusBox.style.display =
-            "block";
-
-        statusBox.style.background =
-            isError
-                ? "#fff1f0"
-                : "#f0f2ff";
-
-        statusBox.style.color =
-            isError
-                ? "#b42318"
-                : "#454a9a";
-    }
-
-
-    function hideStatus() {
-
-        statusBox.style.display =
-            "none";
-    }
-
-
-    // -----------------------------------------
-    // تعديل renderResults لحفظ النتائج
-    // -----------------------------------------
-    const originalExtractPosts =
-        extractPosts;
-
-
-    // اعتراض النتيجة من الـ API
-    async function extractAndSave() {
-
-        await originalExtractPosts();
-
-    }
-
-
-    // -----------------------------------------
-    // إعادة تعريف الاستخراج مع حفظ النتائج
-    // -----------------------------------------
-    extractPosts = async function() {
-
-        const rawText =
-            urlsInput.value.trim();
-
-
-        if (!rawText) {
-
-            showStatus(
-                "⚠️ أدخل رابطًا واحدًا على الأقل.",
-                true
+            throw new Error(
+                data.error ||
+                "حدث خطأ أثناء استخراج المنشورات."
             );
-
-            return;
         }
 
 
-        const urls = rawText
-            .split(/\r?\n/)
-            .map(url => url.trim())
-            .filter(Boolean);
+        renderResults(data.results || []);
+
+        hideStatus();
 
 
-        button.disabled = true;
-
-        button.textContent =
-            "⏳ جاري الاستخراج...";
-
+    } catch (error) {
 
         showStatus(
-            "⏳ جاري استخراج المنشورات، يرجى الانتظار..."
+            "❌ " +
+            (error.message ||
+            "حدث خطأ غير متوقع."),
+            true
+        );
+
+    } finally {
+
+        button.disabled = false;
+
+        button.textContent =
+            "🚀 استخراج المنشورات";
+
+    }
+
+}
+
+
+function renderResults(items) {
+
+    resultsCard.style.display = "block";
+
+
+    if (!items.length) {
+
+        resultsBox.innerHTML = `
+            <div class="empty">
+                لا توجد نتائج لعرضها.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    resultsBox.innerHTML = items.map(item => {
+
+        const pageName = escapeHTML(
+            item.page_name ||
+            "الحساب غير معروف"
         );
 
 
-        resultsCard.style.display =
-            "none";
+        const postText = escapeHTML(
+            item.post_text ||
+            "لا يوجد نص منشور ظاهر."
+        );
 
 
-        try {
-
-            const response =
-                await fetch("/extract", {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        urls: urls
-                    })
-
-                });
+        const postURL = safeURL(
+            item.post_url
+        );
 
 
-            const data =
-                await response.json();
+        let errorHTML = "";
 
 
-            if (!response.ok || !data.success) {
+        if (item.error) {
 
-                throw new Error(
-                    data.error ||
-                    "حدث خطأ أثناء استخراج المنشورات."
-                );
-            }
+            errorHTML = `
+                <div class="error-message">
+                    ⚠️ ${escapeHTML(item.error)}
+                </div>
+            `;
 
-
-            window.lastResults =
-                data.results || [];
-
-
-            originalRenderResults(
-                window.lastResults
-            );
-
-
-            hideStatus();
-
-
-        } catch (error) {
-
-            showStatus(
-                "❌ " +
-                (error.message ||
-                 "حدث خطأ غير متوقع."),
-                true
-            );
-
-        } finally {
-
-            button.disabled = false;
-
-            button.textContent =
-                "🚀 استخراج المنشورات";
         }
-    };
+
+
+        return `
+            <div class="result-item">
+
+                <div class="result-line">
+
+                    <a
+                        class="page-link"
+                        href="${postURL}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >${pageName}</a>:<span class="post-text">${postText}</span>
+
+                </div>
+
+                ${errorHTML}
+
+            </div>
+        `;
+
+    }).join("");
+
+}
+
+
+function showStatus(message, isError = false) {
+
+    statusBox.textContent = message;
+
+    statusBox.style.display = "block";
+
+    statusBox.style.background =
+        isError
+            ? "#fff1f0"
+            : "#f0f2ff";
+
+    statusBox.style.color =
+        isError
+            ? "#b42318"
+            : "#454a9a";
+}
+
+
+function hideStatus() {
+
+    statusBox.style.display = "none";
+
+}
 
 </script>
 
 </body>
 </html>
-```
-
