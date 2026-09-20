@@ -1,325 +1,281 @@
+```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>تفريغ منشورات السوشيال ميديا</title>
-
-<style>
-
-*{
-    box-sizing:border-box;
-}
-
-body{
-    margin:0;
-    font-family:Arial, Tahoma, sans-serif;
-    background:#f3f5f7;
-    color:#111827;
-}
-
-/* الصفحة */
-
-.container{
-    width:min(1200px, 94%);
-    margin:25px auto 50px;
-}
-
-/* الهيدر */
-
-.header{
-    background:#ffffff;
-    border-radius:14px;
-    padding:18px 28px;
-    margin-bottom:12px;
-    box-shadow:0 2px 10px rgba(0,0,0,.06);
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.logo{
-    font-size:21px;
-    font-weight:bold;
-    color:#173f68;
-}
-
-.nav{
-    display:flex;
-    gap:35px;
-    font-size:16px;
-    font-weight:bold;
-}
-
-.nav span{
-    color:#222;
-    cursor:pointer;
-}
-
-.nav span:hover{
-    color:#24577f;
-}
-
-/* منطقة الإدخال */
-
-.input-card{
-    background:#fff;
-    border-radius:12px;
-    padding:12px;
-    margin-bottom:12px;
-    box-shadow:0 2px 10px rgba(0,0,0,.05);
-}
-
-.tools{
-    display:flex;
-    gap:8px;
-    align-items:center;
-}
-
-textarea{
-    flex:1;
-    height:43px;
-    min-height:43px;
-    resize:none;
-
-    border:1px solid #d7dde3;
-    border-radius:7px;
-
-    padding:11px 13px;
-
-    font-family:Arial,Tahoma,sans-serif;
-    font-size:14px;
-
-    outline:none;
-
-    direction:ltr;
-    text-align:left;
-
-    background:#fff;
-}
-
-textarea:focus{
-    border-color:#315f84;
-    box-shadow:0 0 0 2px rgba(49,95,132,.08);
-}
-
-.filter{
-    height:43px;
-    border:1px solid #d7dde3;
-    border-radius:7px;
-    background:#fff;
-    padding:0 15px;
-    font-size:14px;
-    color:#333;
-}
-
-.extract{
-    height:43px;
-    border:none;
-    border-radius:7px;
-    background:#315f84;
-    color:#fff;
-    padding:0 22px;
-    font-size:14px;
-    font-weight:bold;
-    cursor:pointer;
-    white-space:nowrap;
-}
-
-.extract:hover{
-    background:#244b6a;
-}
-
-.extract:disabled{
-    opacity:.6;
-    cursor:not-allowed;
-}
-
-/* الحالة */
-
-#status{
-    display:none;
-    margin-top:10px;
-    padding:9px 12px;
-    border-radius:7px;
-    text-align:center;
-    font-size:14px;
-    font-weight:bold;
-}
-
-.loading{
-    display:block!important;
-    background:#eef5fa;
-    color:#315f84;
-}
-
-.success{
-    display:block!important;
-    background:#edf8f1;
-    color:#16733c;
-}
-
-.error{
-    display:block!important;
-    background:#fff0f0;
-    color:#b42323;
-}
-
-/* النتائج */
-
-.results-card{
-    background:#fff;
-    border-radius:12px;
-    min-height:350px;
-    padding:30px 45px;
-    box-shadow:0 2px 12px rgba(0,0,0,.06);
-}
-
-.results-title{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    margin-bottom:25px;
-
-    border-bottom:1px solid #edf0f2;
-    padding-bottom:13px;
-}
-
-.results-title h2{
-    margin:0;
-    font-size:18px;
-    color:#222;
-}
-
-#count{
-    font-size:13px;
-    color:#777;
-}
-
-/* السطور */
-
-#results{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-}
-
-.result{
-    font-size:22px;
-    line-height:1.8;
-    text-align:right;
-}
-
-/*
-اسم الصفحة
-*/
-
-.page-link{
-    color:#28577e;
-    font-weight:bold;
-    text-decoration:underline;
-
-    cursor:pointer;
-}
-
-.page-link:hover{
-    color:#173d5c;
-}
-
-/*
-نص المنشور
-*/
-
-.post-text{
-    color:#111;
-    font-weight:bold;
-    display:inline;
-}
-
-/* نقطتين بين الاسم والنص */
-
-.separator{
-    color:#111;
-    font-weight:bold;
-    margin:0 5px;
-}
-
-/* رقم النتيجة مخفي بالشكل النهائي */
-
-.number{
-    display:none;
-}
-
-/* المنصة لا تظهر بالشكل النهائي */
-
-.platform{
-    display:none;
-}
-
-/* نتيجة فاشلة */
-
-.result.failed{
-    color:#b42323;
-    font-size:18px;
-    font-weight:bold;
-}
-
-/* لا يوجد نتائج */
-
-.empty{
-    text-align:center;
-    color:#777;
-    padding:60px 20px;
-    font-size:16px;
-}
-
-/* الموبايل */
-
-@media(max-width:800px){
-
-    .header{
-        padding:15px;
-        flex-direction:column;
-        gap:14px;
-    }
-
-    .nav{
-        gap:18px;
-        font-size:14px;
-    }
-
-    .tools{
-        flex-direction:column;
-        align-items:stretch;
-    }
-
-    textarea{
-        width:100%;
-        height:80px;
-    }
-
-    .filter,
-    .extract{
-        width:100%;
-    }
-
-    .results-card{
-        padding:22px 18px;
-    }
-
-    .result{
-        font-size:18px;
-        line-height:1.9;
-    }
-
-}
-
-</style>
-
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>📱 تفريغ منشورات السوشيال ميديا</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Tahoma, sans-serif;
+            background: linear-gradient(135deg, #f7f8ff, #eef1ff);
+            color: #222;
+        }
+
+        .container {
+            width: min(1100px, 94%);
+            margin: 40px auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 24px;
+            padding: 30px 25px;
+            text-align: center;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.08);
+            margin-bottom: 22px;
+        }
+
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: 30px;
+            color: #252a5c;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: #777;
+            font-size: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.07);
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 190px;
+            resize: vertical;
+            border: 2px solid #e3e5f2;
+            border-radius: 16px;
+            padding: 17px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+            direction: ltr;
+            text-align: left;
+        }
+
+        textarea:focus {
+            border-color: #656bd6;
+            box-shadow: 0 0 0 4px rgba(101, 107, 214, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            flex: 1;
+            min-width: 200px;
+            padding: 14px;
+            border: 2px solid #e3e5f2;
+            border-radius: 14px;
+            background: white;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        button {
+            border: none;
+            border-radius: 14px;
+            padding: 14px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            background: #5c63d8;
+            color: white;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #4d54c5;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status {
+            display: none;
+            margin-top: 18px;
+            padding: 14px;
+            border-radius: 14px;
+            text-align: center;
+            background: #f0f2ff;
+            color: #454a9a;
+        }
+
+        .results-card {
+            display: none;
+        }
+
+        .results-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .results-title h2 {
+            margin: 0;
+            color: #252a5c;
+            font-size: 21px;
+        }
+
+        .count {
+            background: #eef0ff;
+            color: #535ac7;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .result-item {
+            border: 1px solid #e8e9f2;
+            border-radius: 17px;
+            padding: 18px;
+            margin-bottom: 12px;
+            background: #fff;
+            transition: 0.2s;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        .result-line {
+            line-height: 1.9;
+            font-size: 16px;
+            word-break: break-word;
+        }
+
+        .page-link {
+            color: #1769e0;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .page-link:hover {
+            text-decoration: underline;
+        }
+
+        .post-text {
+            color: #222;
+            white-space: pre-wrap;
+        }
+
+        .platform {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 9px;
+            border-radius: 8px;
+            background: #f1f2f7;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .error-message {
+            margin-top: 10px;
+            color: #b42318;
+            background: #fff1f0;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 35px 15px;
+            color: #777;
+        }
+
+        .footer {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            padding: 10px 0 30px;
+        }
+
+        @media (max-width: 600px) {
+
+            .container {
+                width: 94%;
+                margin: 20px auto;
+            }
+
+            .header {
+                padding: 24px 17px;
+                border-radius: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 18px;
+                border-radius: 20px;
+            }
+
+            textarea {
+                min-height: 160px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            select,
+            button {
+                width: 100%;
+            }
+
+            .result-line {
+                font-size: 15px;
+            }
+        }
+
+    </style>
 </head>
 
 
@@ -327,44 +283,45 @@ textarea:focus{
 
 <div class="container">
 
-
-    <!-- الهيدر -->
-
+    <!-- Header -->
     <div class="header">
 
-        <div class="logo">
-            📱 تفريغ منشورات السوشيال ميديا
+        <div class="header-icon">
+            📱
         </div>
 
-        <div class="nav">
+        <h1>
+            تفريغ منشورات السوشيال ميديا
+        </h1>
 
-            <span>الرئيسية</span>
-
-            <span>عن الموقع</span>
-
-            <span>تواصل معنا</span>
-
-        </div>
+        <p class="subtitle">
+            استخرج اسم الحساب ونص المنشور من Facebook وInstagram وX
+        </p>
 
     </div>
 
 
-    <!-- أدوات الإدخال -->
+    <!-- Input -->
+    <div class="card">
 
-    <div class="input-card">
+        <label for="urls">
+            🔗 أدخل الروابط
+        </label>
 
-        <div class="tools">
+        <textarea
+            id="urls"
+            placeholder="ضع كل رابط في سطر منفصل...
 
-            <textarea
-                id="links"
-                placeholder="ضع روابط المنشورات هنا، كل رابط في سطر..."
-            ></textarea>
+مثال:
+https://www.facebook.com/...
+https://www.instagram.com/...
+https://x.com/..."
+        ></textarea>
 
 
-            <select
-                id="filter"
-                class="filter"
-            >
+        <div class="controls">
+
+            <select id="platformFilter">
 
                 <option value="all">
                     جميع المنصات
@@ -386,360 +343,533 @@ textarea:focus{
 
 
             <button
-                id="extractBtn"
-                class="extract"
-                onclick="extractPosts()"
-            >
-                🔎 استخراج
+                id="extractButton"
+                onclick="extractPosts()">
+
+                🚀 استخراج المنشورات
+
             </button>
 
         </div>
 
 
-        <div id="status"></div>
+        <div
+            id="status"
+            class="status">
+        </div>
 
     </div>
 
 
-    <!-- النتائج -->
-
-    <div class="results-card">
+    <!-- Results -->
+    <div
+        id="resultsCard"
+        class="card results-card">
 
         <div class="results-title">
 
             <h2>
-                نتائج المنشورات
+                📋 النتائج
             </h2>
 
-            <span id="count"></span>
+            <span
+                id="resultCount"
+                class="count">
+                0
+            </span>
 
         </div>
 
 
-        <div id="results">
-
-            <div class="empty">
-                ضع روابط المنشورات ثم اضغط على «استخراج».
-            </div>
-
-        </div>
+        <div id="results"></div>
 
     </div>
 
+
+    <div class="footer">
+        أداة تفريغ المنشورات من منصات التواصل الاجتماعي
+    </div>
 
 </div>
 
 
 <script>
 
-let currentResults = [];
-
-
-/* حماية النص */
-
-function escapeHTML(text){
-
-    if(
-        text === null ||
-        text === undefined
-    ){
-        return "";
-    }
-
-    return String(text)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
-}
-
-
-/* عرض الحالة */
-
-function showStatus(message,type){
-
-    const status =
-        document.getElementById("status");
-
-    status.className = type;
-
-    status.textContent = message;
-}
-
-
-/* عرض النتائج */
-
-function renderResults(){
-
-    const resultsBox =
-        document.getElementById("results");
+    const urlsInput =
+        document.getElementById("urls");
 
     const filter =
-        document.getElementById("filter").value;
-
-
-    let filtered =
-        currentResults.filter(item => {
-
-            if(filter === "all"){
-                return true;
-            }
-
-            return item.platform === filter;
-
-        });
-
-
-    document
-        .getElementById("count")
-        .textContent =
-        `${filtered.length} نتيجة`;
-
-
-    if(!filtered.length){
-
-        resultsBox.innerHTML = `
-            <div class="empty">
-                لا توجد نتائج مطابقة.
-            </div>
-        `;
-
-        return;
-    }
-
-
-    resultsBox.innerHTML = "";
-
-
-    filtered.forEach((item,index) => {
-
-        const div =
-            document.createElement("div");
-
-
-        if(item.success){
-
-            div.className = "result";
-
-
-            const pageName =
-                escapeHTML(
-                    item.page_name ||
-                    "الحساب غير معروف"
-                );
-
-
-            const postText =
-                escapeHTML(
-                    item.post_text ||
-                    "لا يوجد نص منشور ظاهر."
-                );
-
-
-            const postUrl =
-                escapeHTML(
-                    item.post_url || "#"
-                );
-
-
-            div.innerHTML = `
-
-                <a
-                    class="page-link"
-                    href="${postUrl}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    ${pageName}
-                </a>
-
-                <span class="separator">
-                    :
-                </span>
-
-                <span class="post-text">
-                    ${postText}
-                </span>
-
-            `;
-
-        }
-
-        else{
-
-            div.className =
-                "result failed";
-
-            div.innerHTML = `
-                ❌ الرابط غير صالح
-            `;
-
-        }
-
-
-        resultsBox.appendChild(div);
-
-    });
-
-}
-
-
-/* استخراج المنشورات */
-
-async function extractPosts(){
-
-    const textarea =
-        document.getElementById("links");
+        document.getElementById("platformFilter");
 
     const button =
-        document.getElementById("extractBtn");
+        document.getElementById("extractButton");
+
+    const statusBox =
+        document.getElementById("status");
+
+    const resultsCard =
+        document.getElementById("resultsCard");
 
     const resultsBox =
         document.getElementById("results");
 
+    const resultCount =
+        document.getElementById("resultCount");
 
-    const raw =
-        textarea.value.trim();
 
+    // -----------------------------------------
+    // حماية النص من HTML
+    // -----------------------------------------
+    function escapeHTML(value) {
 
-    if(!raw){
+        if (value === null || value === undefined) {
+            return "";
+        }
 
-        showStatus(
-            "⚠️ ضع رابطًا واحدًا على الأقل.",
-            "error"
-        );
-
-        return;
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
 
-    const links =
-        raw
-        .split(/\r?\n/)
-        .map(x => x.trim())
-        .filter(x => x.length > 0);
+    // -----------------------------------------
+    // تنظيف الرابط قبل عرضه
+    // -----------------------------------------
+    function safeURL(url) {
+
+        if (!url) {
+            return "#";
+        }
+
+        const value = String(url).trim();
+
+        if (
+            value.startsWith("https://") ||
+            value.startsWith("http://")
+        ) {
+            return value;
+        }
+
+        return "#";
+    }
 
 
-    button.disabled = true;
+    // -----------------------------------------
+    // استخراج المنشورات
+    // -----------------------------------------
+    async function extractPosts() {
 
-    button.textContent =
-        "⏳ جاري الاستخراج...";
+        const rawText =
+            urlsInput.value.trim();
+
+        if (!rawText) {
+
+            showStatus(
+                "⚠️ أدخل رابطًا واحدًا على الأقل.",
+                true
+            );
+
+            return;
+        }
 
 
-    resultsBox.innerHTML = `
-        <div class="empty">
-            ⏳ جاري استخراج المنشورات...
-        </div>
-    `;
+        const urls = rawText
+            .split(/\r?\n/)
+            .map(url => url.trim())
+            .filter(Boolean);
 
 
-    showStatus(
-        "⏳ جاري استخراج المنشورات...",
-        "loading"
-    );
+        button.disabled = true;
+
+        button.textContent =
+            "⏳ جاري الاستخراج...";
 
 
-    try{
+        showStatus(
+            "⏳ جاري استخراج المنشورات، يرجى الانتظار..."
+        );
 
-        const response =
-            await fetch(
-                "/extract",
-                {
-                    method:"POST",
 
-                    headers:{
+        resultsCard.style.display =
+            "none";
+
+        resultsBox.innerHTML = "";
+
+
+        try {
+
+            const response =
+                await fetch("/extract", {
+
+                    method: "POST",
+
+                    headers: {
                         "Content-Type":
                             "application/json"
                     },
 
-                    body:JSON.stringify({
-                        urls:links.join("\n")
+                    body: JSON.stringify({
+                        urls: urls
                     })
+
+                });
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "حدث خطأ أثناء استخراج المنشورات."
+                );
+            }
+
+
+            renderResults(
+                data.results || []
+            );
+
+
+            hideStatus();
+
+
+        } catch (error) {
+
+            showStatus(
+                "❌ " +
+                (error.message ||
+                 "حدث خطأ غير متوقع."),
+                true
+            );
+
+        } finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "🚀 استخراج المنشورات";
+        }
+    }
+
+
+    // -----------------------------------------
+    // عرض النتائج
+    // -----------------------------------------
+    function renderResults(items) {
+
+        const selectedPlatform =
+            filter.value;
+
+
+        let filtered =
+            items.filter(item => {
+
+                if (selectedPlatform === "all") {
+                    return true;
                 }
-            );
+
+                return item.platform ===
+                    selectedPlatform;
+            });
 
 
-        const data =
-            await response.json();
+        resultCount.textContent =
+            filtered.length;
 
 
-        if(
-            !response.ok ||
-            data.status !== "success"
-        ){
+        resultsCard.style.display =
+            "block";
 
-            throw new Error(
-                data.message ||
-                "حدث خطأ أثناء الاستخراج."
-            );
 
+        if (!filtered.length) {
+
+            resultsBox.innerHTML = `
+                <div class="empty">
+                    لا توجد نتائج لعرضها.
+                </div>
+            `;
+
+            return;
         }
 
 
-        currentResults =
-            data.results || [];
+        resultsBox.innerHTML =
+            filtered.map(item => {
+
+                const pageName =
+                    escapeHTML(
+                        item.page_name ||
+                        "الحساب غير معروف"
+                    );
 
 
-        renderResults();
+                const postText =
+                    escapeHTML(
+                        item.post_text ||
+                        "لا يوجد نص منشور ظاهر."
+                    );
 
 
-        showStatus(
-            `✅ تم استخراج ${currentResults.length} نتيجة.`,
-            "success"
+                const postURL =
+                    safeURL(
+                        item.post_url
+                    );
+
+
+                const platform =
+                    escapeHTML(
+                        item.platform ||
+                        ""
+                    );
+
+
+                let errorHTML = "";
+
+
+                if (item.error) {
+
+                    errorHTML = `
+                        <div class="error-message">
+                            ⚠️ ${escapeHTML(item.error)}
+                        </div>
+                    `;
+                }
+
+
+                return `
+                    <div class="result-item">
+
+                        <div class="result-line">
+
+                            <a
+                                class="page-link"
+                                href="${postURL}"
+                                target="_blank"
+                                rel="noopener noreferrer">
+
+                                ${pageName}
+
+                            </a>
+
+                            :
+
+                            <span class="post-text">
+                                ${postText}
+                            </span>
+
+                        </div>
+
+
+                        <span class="platform">
+                            ${platform}
+                        </span>
+
+                        ${errorHTML}
+
+                    </div>
+                `;
+
+            }).join("");
+    }
+
+
+    // -----------------------------------------
+    // الفلتر
+    // -----------------------------------------
+    filter.addEventListener(
+        "change",
+        function() {
+
+            const currentResults =
+                window.lastResults || [];
+
+            renderResults(
+                currentResults
+            );
+
+        }
+    );
+
+
+    // حفظ النتائج للفلترة
+    const originalRenderResults =
+        renderResults;
+
+
+    window.lastResults = [];
+
+
+    function saveResults(items) {
+
+        window.lastResults =
+            items || [];
+
+        originalRenderResults(
+            window.lastResults
         );
+    }
 
+
+    // -----------------------------------------
+    // Status
+    // -----------------------------------------
+    function showStatus(
+        message,
+        isError = false
+    ) {
+
+        statusBox.textContent =
+            message;
+
+        statusBox.style.display =
+            "block";
+
+        statusBox.style.background =
+            isError
+                ? "#fff1f0"
+                : "#f0f2ff";
+
+        statusBox.style.color =
+            isError
+                ? "#b42318"
+                : "#454a9a";
+    }
+
+
+    function hideStatus() {
+
+        statusBox.style.display =
+            "none";
+    }
+
+
+    // -----------------------------------------
+    // تعديل renderResults لحفظ النتائج
+    // -----------------------------------------
+    const originalExtractPosts =
+        extractPosts;
+
+
+    // اعتراض النتيجة من الـ API
+    async function extractAndSave() {
+
+        await originalExtractPosts();
 
     }
 
-    catch(error){
 
-        currentResults = [];
+    // -----------------------------------------
+    // إعادة تعريف الاستخراج مع حفظ النتائج
+    // -----------------------------------------
+    extractPosts = async function() {
 
-
-        resultsBox.innerHTML = `
-            <div class="empty">
-                ❌ ${escapeHTML(error.message)}
-            </div>
-        `;
+        const rawText =
+            urlsInput.value.trim();
 
 
-        document
-            .getElementById("count")
-            .textContent = "";
+        if (!rawText) {
+
+            showStatus(
+                "⚠️ أدخل رابطًا واحدًا على الأقل.",
+                true
+            );
+
+            return;
+        }
 
 
-        showStatus(
-            "❌ " + error.message,
-            "error"
-        );
-
-    }
+        const urls = rawText
+            .split(/\r?\n/)
+            .map(url => url.trim())
+            .filter(Boolean);
 
 
-    finally{
-
-        button.disabled = false;
+        button.disabled = true;
 
         button.textContent =
-            "🔎 استخراج";
-
-    }
-
-}
+            "⏳ جاري الاستخراج...";
 
 
-/* الفلتر */
+        showStatus(
+            "⏳ جاري استخراج المنشورات، يرجى الانتظار..."
+        );
 
-document
-    .getElementById("filter")
-    .addEventListener(
-        "change",
-        renderResults
-    );
+
+        resultsCard.style.display =
+            "none";
+
+
+        try {
+
+            const response =
+                await fetch("/extract", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        urls: urls
+                    })
+
+                });
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.error ||
+                    "حدث خطأ أثناء استخراج المنشورات."
+                );
+            }
+
+
+            window.lastResults =
+                data.results || [];
+
+
+            originalRenderResults(
+                window.lastResults
+            );
+
+
+            hideStatus();
+
+
+        } catch (error) {
+
+            showStatus(
+                "❌ " +
+                (error.message ||
+                 "حدث خطأ غير متوقع."),
+                true
+            );
+
+        } finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "🚀 استخراج المنشورات";
+        }
+    };
 
 </script>
 
 </body>
-
 </html>
+```
+
